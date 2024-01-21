@@ -7,6 +7,11 @@ import { userInfoEntity } from "../../entity/user/userInfoEntity";
 import { userPlayHistory } from "../../entity/user/userPlayHistory";
 import { userSetEntity } from "../../entity/user/userSetEntity";
 import { weeklyHashesEntity } from "../../entity/weekly-hashes/weeklyHashesEntity";
+import {
+  transactionCurrency,
+  transactionType,
+  userTransactionEntity,
+} from "../../entity/user/userTransaction";
 
 const playRouter = Router();
 playRouter.use(express.json());
@@ -405,17 +410,29 @@ playRouter.post("/", async (req: any, res: any, next) => {
         set.push(user_set[set_tags[i]]);
       }
 
+      const rewards = await calculateRewards({
+        set: set,
+        set_letters: letters,
+        set_hash: set_hash,
+        node: node_nft,
+        user: req.user,
+        user_info: user_info,
+      });
+
+      await userTransactionEntity
+        .create({
+          user_id: req.user,
+          transaction_type: transactionType.PLAY,
+          description: `Play Reward: #${rewards.total_reward}`,
+          transaction_amount: Number(rewards.total_reward),
+          transaction_currency: transactionCurrency.ETTR,
+        })
+        .save();
+
       return res.status(200).send({
         success: true,
         message: "Enjoy your rewards!",
-        ...(await calculateRewards({
-          set: set,
-          set_letters: letters,
-          set_hash: set_hash,
-          node: node_nft,
-          user: req.user,
-          user_info: user_info,
-        })),
+        ...rewards,
       });
     } else {
       if (user_info.current_energy <= 0) {

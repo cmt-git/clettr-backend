@@ -32,6 +32,13 @@ export class nftEntity extends BaseEntity {
   creation_date: Date;
 
   @Column({
+    length: 100,
+    default: null,
+    unique: true,
+  })
+  nft_parent_token_id: String; //? id used for tracking parents
+
+  @Column({
     length: 1000,
     default: null,
     unique: true,
@@ -43,7 +50,14 @@ export class nftEntity extends BaseEntity {
     default: null,
     unique: true,
   })
-  nft_long_id: String; //? used in token uris
+  nft_token_id: String; //? generated from solidty
+
+  @Column({
+    length: 1000,
+    default: null,
+    unique: true,
+  })
+  nft_token_uri: String; //? used in token uris
 
   @Column()
   nft_type: String; //! WARNING THIS VARIABLE CAN ONLY HAVE "active" or "passive"
