@@ -134,14 +134,15 @@ const resolvers = {
         for (let i = 0; i < keys.length; i++) {
           if (i > 0 && keys[i].split("_")[0] == "set") {
             if (query[keys[i]] != null) {
+              console.log(query[keys[i]]);
               nft_arr.push({
                 id: Number(query[keys[i]].id),
                 current_owner: context.user.username,
                 original_owner: query[keys[i]].original_owner.username,
                 creation_date: query[keys[i]].creation_date.toString(),
-                nft_parent_token_id: query[i].nft_parent_token_id,
-                nft_token_id: query[i].nft_token_id,
-                nft_token_uri: query[i].nft_token_uri,
+                nft_parent_token_id: query[keys[i]].nft_parent_token_id,
+                nft_token_id: query[keys[i]].nft_token_id,
+                nft_token_uri: query[keys[i]].nft_token_uri,
                 nft_type: query[keys[i]].nft_type.toString(),
                 nft_traits: query[keys[i]].nft_traits.toString(),
                 nft_hash: query[keys[i]].nft_hash.toString(),

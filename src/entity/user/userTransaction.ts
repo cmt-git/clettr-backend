@@ -19,7 +19,7 @@ export enum transactionType {
 }
 
 export enum transactionCurrency {
-  USDT = "usdt",
+  USDC = "usdc",
   ETTR = "ettr",
 }
 
@@ -64,7 +64,7 @@ export class userTransactionEntity extends BaseEntity {
     name: "transaction_currency",
     type: "enum",
     enum: transactionCurrency,
-    default: transactionCurrency.USDT,
+    default: transactionCurrency.USDC,
   })
   transaction_currency: string;
 }

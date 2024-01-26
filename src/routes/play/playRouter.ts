@@ -24,6 +24,7 @@ const getComparedHash = async (current_hash: string, type: any) => {
   const weeklyHashSet = await weeklyHashesEntity.find({
     where: { hash_type: type },
   });
+
   const hash_set = [];
   for (let i = 0; i < weeklyHashSet.length; i++) {
     hash_set.push(weeklyHashSet[i].hash);
@@ -314,14 +315,25 @@ const calculateRewards = async (json: any) => {
     .save();
 
   if (node.current_owner.id == json.user.id) {
+    const reward_amount = reward * 1;
     await getConnection()
       .getRepository(userInfoEntity)
       .createQueryBuilder("user_info_entity")
       .leftJoin("user_info_entity.user_id", "user_id")
       .update(userInfoEntity)
-      .set({ unclaimed_ettr: () => `unclaimed_ettr + ${reward * 1}` })
+      .set({ unclaimed_ettr: () => `unclaimed_ettr + ${reward_amount}` })
       .where("user_id.id = :value", { value: json.user.id })
       .execute();
+
+    await userTransactionEntity
+      .create({
+        user_id: json.user.id,
+        transaction_type: transactionType.PLAY,
+        description: `Play Reward: ${reward_amount}`,
+        transaction_amount: Number(reward_amount),
+        transaction_currency: transactionCurrency.ETTR,
+      })
+      .save();
   } else {
     await getConnection()
       .getRepository(userInfoEntity)
@@ -335,6 +347,16 @@ const calculateRewards = async (json: any) => {
       .where("user_id.id = :value", { value: json.user.id })
       .execute();
 
+    await userTransactionEntity
+      .create({
+        user_id: json.user.id,
+        transaction_type: transactionType.PLAY,
+        description: `Play Reward: ${reward * 0.95}`,
+        transaction_amount: Number(reward * 0.95),
+        transaction_currency: transactionCurrency.ETTR,
+      })
+      .save();
+
     await getConnection()
       .getRepository(userInfoEntity)
       .createQueryBuilder("user_info_entity")
@@ -343,6 +365,16 @@ const calculateRewards = async (json: any) => {
       .set({ unclaimed_ettr: () => `unclaimed_ettr + ${reward * 0.05}` })
       .where("user_id.id = :value", { value: node.current_owner.id })
       .execute();
+
+    await userTransactionEntity
+      .create({
+        user_id: node.current_owner.id,
+        transaction_type: transactionType.COMMUNITY,
+        description: `Play Reward: ${reward * 0.05}`,
+        transaction_amount: Number(reward * 0.05),
+        transaction_currency: transactionCurrency.ETTR,
+      })
+      .save();
   }
 
   return {
@@ -418,16 +450,6 @@ playRouter.post("/", async (req: any, res: any, next) => {
         user: req.user,
         user_info: user_info,
       });
-
-      await userTransactionEntity
-        .create({
-          user_id: req.user,
-          transaction_type: transactionType.PLAY,
-          description: `Play Reward: #${rewards.total_reward}`,
-          transaction_amount: Number(rewards.total_reward),
-          transaction_currency: transactionCurrency.ETTR,
-        })
-        .save();
 
       return res.status(200).send({
         success: true,

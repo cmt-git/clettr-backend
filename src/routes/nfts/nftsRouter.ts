@@ -152,7 +152,7 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
           transaction_type: transactionType.MARKET_BUY,
           description: `Bought Passive NFT #${nft_entity.id}`,
           transaction_amount: -4.99,
-          transaction_currency: transactionCurrency.USDT,
+          transaction_currency: transactionCurrency.USDC,
         })
         .save();
 
@@ -277,7 +277,7 @@ nftsRouter.post("/forge", async (req: any, res: any, next) => {
       await userTransactionEntity
         .create({
           user_id: req.user,
-          transaction_type: transactionType.MARKET_BUY,
+          transaction_type: transactionType.FORGE,
           description: `Forged NFT #${nft_entity.id}`,
           transaction_amount:
             current_star == 1
@@ -364,9 +364,12 @@ nftsRouter.post("/market_buy", async (req: any, res: any, next) => {
   let _status: any = "market_sell";
 
   if (req.user != null) {
-    const nft_entity = await nftEntity.findOne({
-      where: { id: nft_id },
-    });
+    const nft_entity = await nftEntity
+      .createQueryBuilder("nft_entity")
+      .leftJoinAndSelect("nft_entity.current_owner", "current_owner")
+      .leftJoinAndSelect("nft_entity.original_owner", "original_owner")
+      .where("nft_entity.id = :nft_id", { nft_id })
+      .getOne();
 
     let query = await nftEntity.update(
       { id: nft_id, status: _status },
@@ -380,6 +383,7 @@ nftsRouter.post("/market_buy", async (req: any, res: any, next) => {
       });
     } else {
       const nft_entity_market_info = nft_entity.market_info.split("-");
+      console.log(nft_entity.current_owner, nft_entity);
       await userTransactionEntity
         .create({
           user_id: nft_entity.current_owner,
@@ -389,7 +393,7 @@ nftsRouter.post("/market_buy", async (req: any, res: any, next) => {
           transaction_currency:
             nft_entity_market_info[0] == "ettr"
               ? transactionCurrency.ETTR
-              : transactionCurrency.USDT,
+              : transactionCurrency.USDC,
         })
         .save();
 
@@ -402,7 +406,7 @@ nftsRouter.post("/market_buy", async (req: any, res: any, next) => {
           transaction_currency:
             nft_entity_market_info[0] == "ettr"
               ? transactionCurrency.ETTR
-              : transactionCurrency.USDT,
+              : transactionCurrency.USDC,
         })
         .save();
 
