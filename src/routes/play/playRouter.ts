@@ -12,6 +12,7 @@ import {
   transactionType,
   userTransactionEntity,
 } from "../../entity/user/userTransaction";
+import { userTransactionHandle } from "../user/scripts/handleUserTransactions";
 
 const playRouter = Router();
 playRouter.use(express.json());
@@ -325,15 +326,13 @@ const calculateRewards = async (json: any) => {
       .where("user_id.id = :value", { value: json.user.id })
       .execute();
 
-    await userTransactionEntity
-      .create({
-        user_id: json.user.id,
-        transaction_type: transactionType.PLAY,
-        description: `Play Reward: ${reward_amount}`,
-        transaction_amount: Number(reward_amount),
-        transaction_currency: transactionCurrency.ETTR,
-      })
-      .save();
+    await userTransactionHandle({
+      user: json.user.id,
+      transaction_type: transactionType.PLAY,
+      description: `Play Reward: ${reward_amount}`,
+      transaction_amount: Number(reward_amount),
+      transaction_currency: transactionCurrency.ETTR,
+    });
   } else {
     await getConnection()
       .getRepository(userInfoEntity)
@@ -347,15 +346,13 @@ const calculateRewards = async (json: any) => {
       .where("user_id.id = :value", { value: json.user.id })
       .execute();
 
-    await userTransactionEntity
-      .create({
-        user_id: json.user.id,
-        transaction_type: transactionType.PLAY,
-        description: `Play Reward: ${reward * 0.95}`,
-        transaction_amount: Number(reward * 0.95),
-        transaction_currency: transactionCurrency.ETTR,
-      })
-      .save();
+    await userTransactionHandle({
+      user: json.user.id,
+      transaction_type: transactionType.PLAY,
+      description: `Play Reward: ${reward * 0.95}`,
+      transaction_amount: Number(reward * 0.95),
+      transaction_currency: transactionCurrency.ETTR,
+    });
 
     await getConnection()
       .getRepository(userInfoEntity)
@@ -366,15 +363,13 @@ const calculateRewards = async (json: any) => {
       .where("user_id.id = :value", { value: node.current_owner.id })
       .execute();
 
-    await userTransactionEntity
-      .create({
-        user_id: node.current_owner.id,
-        transaction_type: transactionType.COMMUNITY,
-        description: `Play Reward: ${reward * 0.05}`,
-        transaction_amount: Number(reward * 0.05),
-        transaction_currency: transactionCurrency.ETTR,
-      })
-      .save();
+    await userTransactionHandle({
+      user: json.user.id,
+      transaction_type: transactionType.COMMUNITY,
+      description: `Play Reward: ${reward * 0.05}`,
+      transaction_amount: Number(reward * 0.05),
+      transaction_currency: transactionCurrency.ETTR,
+    });
   }
 
   return {

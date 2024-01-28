@@ -7,6 +7,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
+  BeforeInsert,
 } from "typeorm";
 import { userEntity } from "./userEntity";
 
@@ -30,6 +31,23 @@ export class userTransactionEntity extends BaseEntity {
 
   @CreateDateColumn() // -> UTC
   transaction_date: Date;
+
+  @Column()
+  day: number;
+
+  @Column()
+  month: number;
+
+  @Column()
+  year: number;
+
+  @BeforeInsert()
+  updateTransactionDate() {
+    const currentDate = new Date();
+    this.day = currentDate.getUTCDate();
+    this.month = currentDate.getUTCMonth() + 1; // Months are zero-based, so add 1
+    this.year = currentDate.getUTCFullYear();
+  }
 
   @ManyToOne(() => userEntity, (user_entity) => user_entity.bsc_address, {
     onDelete: "CASCADE",

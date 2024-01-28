@@ -7,6 +7,7 @@ import {
   transactionType,
   userTransactionEntity,
 } from "../../entity/user/userTransaction";
+import { userTransactionHandle } from "../user/scripts/handleUserTransactions";
 
 const nftsRouter = Router();
 nftsRouter.use(express.json());
@@ -103,17 +104,13 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
         })
         .save();
 
-      const ut = await userTransactionEntity
-        .create({
-          user_id: req.user,
-          transaction_type: transactionType.MARKET_BUY,
-          description: `Bought Active NFT #${nft_entity.id}`,
-          transaction_amount: -49.99,
-          transaction_currency: transactionCurrency.ETTR,
-        })
-        .save();
-
-      console.log("??", ut);
+      await userTransactionHandle({
+        user: req.user,
+        description: `Bought Active NFT #${nft_entity.id}`,
+        transaction_type: transactionType.MARKET_BUY,
+        transaction_currency: transactionCurrency.ETTR,
+        transaction_amount: -49.99,
+      });
 
       return res.status(200).send({
         message: "Active NFT has been minted!",
@@ -146,15 +143,13 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
         })
         .save();
 
-      await userTransactionEntity
-        .create({
-          user_id: req.user,
-          transaction_type: transactionType.MARKET_BUY,
-          description: `Bought Passive NFT #${nft_entity.id}`,
-          transaction_amount: -4.99,
-          transaction_currency: transactionCurrency.USDC,
-        })
-        .save();
+      await userTransactionHandle({
+        user: req.user,
+        transaction_type: transactionType.MARKET_BUY,
+        description: `Bought Passive NFT #${nft_entity.id}`,
+        transaction_amount: -4.99,
+        transaction_currency: transactionCurrency.USDC,
+      });
 
       return res.status(200).send({
         message: "Passive NFT has been minted!",
@@ -274,24 +269,23 @@ nftsRouter.post("/forge", async (req: any, res: any, next) => {
       const nft_entity = await nftEntity.create(nft_template).save();
       //console.log(nft_entity, nft_entity.nft);
       current_star = Number(nft_entity.nft_stars);
-      await userTransactionEntity
-        .create({
-          user_id: req.user,
-          transaction_type: transactionType.FORGE,
-          description: `Forged NFT #${nft_entity.id}`,
-          transaction_amount:
-            current_star == 1
-              ? -99.99
-              : current_star == 2
-              ? -199.99
-              : current_star == 3
-              ? -299.99
-              : current_star == 4
-              ? -499.99
-              : 0,
-          transaction_currency: transactionCurrency.ETTR,
-        })
-        .save();
+
+      await userTransactionHandle({
+        user: req.user,
+        transaction_type: transactionType.FORGE,
+        description: `Forged NFT #${nft_entity.id}`,
+        transaction_amount:
+          current_star == 1
+            ? -99.99
+            : current_star == 2
+            ? -199.99
+            : current_star == 3
+            ? -299.99
+            : current_star == 4
+            ? -499.99
+            : 0,
+        transaction_currency: transactionCurrency.ETTR,
+      });
 
       for (let i = 0; i < nft_ids.length; i++) {
         await nftEntity.update(
@@ -383,32 +377,28 @@ nftsRouter.post("/market_buy", async (req: any, res: any, next) => {
       });
     } else {
       const nft_entity_market_info = nft_entity.market_info.split("-");
-      console.log(nft_entity.current_owner, nft_entity);
-      await userTransactionEntity
-        .create({
-          user_id: nft_entity.current_owner,
-          transaction_type: transactionType.MARKET_SELL,
-          description: `Sold NFT #${nft_id}`,
-          transaction_amount: Number(nft_entity_market_info[1]),
-          transaction_currency:
-            nft_entity_market_info[0] == "ettr"
-              ? transactionCurrency.ETTR
-              : transactionCurrency.USDC,
-        })
-        .save();
 
-      await userTransactionEntity
-        .create({
-          user_id: req.user,
-          transaction_type: transactionType.MARKET_BUY,
-          description: `Bought NFT #${nft_id}`,
-          transaction_amount: -Number(nft_entity_market_info[1]),
-          transaction_currency:
-            nft_entity_market_info[0] == "ettr"
-              ? transactionCurrency.ETTR
-              : transactionCurrency.USDC,
-        })
-        .save();
+      await userTransactionHandle({
+        user: nft_entity.current_owner,
+        transaction_type: transactionType.MARKET_SELL,
+        description: `Sold NFT #${nft_id}`,
+        transaction_amount: Number(nft_entity_market_info[1]),
+        transaction_currency:
+          nft_entity_market_info[0] == "ettr"
+            ? transactionCurrency.ETTR
+            : transactionCurrency.USDC,
+      });
+
+      await userTransactionHandle({
+        user: req.user,
+        transaction_type: transactionType.MARKET_BUY,
+        description: `Bought NFT #${nft_id}`,
+        transaction_amount: -Number(nft_entity_market_info[1]),
+        transaction_currency:
+          nft_entity_market_info[0] == "ettr"
+            ? transactionCurrency.ETTR
+            : transactionCurrency.USDC,
+      });
 
       return res.status(200).send({
         message: "NFT has been successfully bought.",
