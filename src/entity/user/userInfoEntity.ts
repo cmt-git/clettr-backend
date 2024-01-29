@@ -94,7 +94,6 @@ export class userInfoEntity extends BaseEntity {
   })
   node_used: string;
 
-  //? this resets every day
   @Column({
     name: "roles",
     default: "user",
@@ -102,4 +101,9 @@ export class userInfoEntity extends BaseEntity {
     enum: UserType,
   })
   roles: string;
+
+  @Column({
+    default: false,
+  })
+  banned: boolean;
 }

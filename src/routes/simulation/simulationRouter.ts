@@ -93,3 +93,13 @@ simulationRouter.post("/price", async (req: any, res: any, next) => {
     data: data,
   });
 });
+
+simulationRouter.get("/currentprice", async (req: any, res: any, next) => {
+  return res.status(200).send({
+    data: await getConnection()
+      .getRepository(ettrEntity)
+      .createQueryBuilder("ettr_entity")
+      .orderBy("ettr_entity.id", "DESC")
+      .getOne(), // Assuming you want to retrieve entities,
+  });
+});
