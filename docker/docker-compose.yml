@@ -9,7 +9,7 @@ services:
       - TZ=Asia/Singapore
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=beastclash_db
+      - POSTGRES_DB=clettr_db
     ports:
       - "5432:5432"
   pgadmin:

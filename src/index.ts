@@ -32,7 +32,11 @@ redis_client.connect();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://159.223.39.105:3000/",
+  "https://clettr.com:3000",
+];
 const corsOptions = {
   origin: allowedOrigins,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
