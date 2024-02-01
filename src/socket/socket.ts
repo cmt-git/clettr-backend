@@ -27,7 +27,7 @@ export function setupSocket(_app, _origins) {
     });
   })();
 
-  socket_server.listen(3001, () => {
+  socket_server.listen(3001, "0.0.0.0", () => {
     console.log("Server Socket is running on http://localhost:3001");
   });
 }

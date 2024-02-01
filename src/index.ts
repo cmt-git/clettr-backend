@@ -101,7 +101,7 @@ runCronScheduler();
 //! -> DO NOT USE localhost here only use 0.0.0.0 as connection would be refused if request is sent outside brower (mainly for testing purposes)
 createConnection()
   .then(async () => {
-    app.listen(8878, "localhost", () =>
+    app.listen(8878, "0.0.0.0", () =>
       console.log("Server up at localhost:" + process.env.PORT)
     );
     // app.listen(8878, 'localhost')
