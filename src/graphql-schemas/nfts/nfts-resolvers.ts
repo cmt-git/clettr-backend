@@ -14,9 +14,9 @@ const resolvers = {
 
         let user_type =
           args.not_user !== true
-            ? //? "(current_owner = :value or current_owner.username = :value)"
-              "(current_owner.username = :value)"
-            : "(current_owner != :value)";
+            ? "(current_owner = :value or current_owner.username = :value)"
+            : //"(current_owner.username = :value)"
+              "(current_owner != :value)";
 
         if (args.filters == null) {
           console.log(args.username, user_type);
