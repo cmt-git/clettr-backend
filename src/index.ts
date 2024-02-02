@@ -34,6 +34,7 @@ app.use(express.urlencoded({ extended: false }));
 
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://159.223.39.105",
   "http://159.223.39.105:3000",
   "https://clettr.com:3000",
 ];
@@ -84,13 +85,17 @@ const server = new ApolloServer({
 
 (async () => {
   await server.start();
-  await server.applyMiddleware({ app, path: "/graphql", cors: corsOptions });
+  await server.applyMiddleware({
+    app,
+    path: "/api/graphql",
+    cors: corsOptions,
+  });
 })();
 
 // ----> Apollo GraphQL
 
 // ---> Routers
-app.use("/", routers);
+app.use("/api", routers);
 // ---> Routers
 
 setupSocket(app, allowedOrigins);
