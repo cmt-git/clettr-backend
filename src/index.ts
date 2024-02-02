@@ -36,7 +36,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://159.223.39.105",
   "http://159.223.39.105:3000",
-  "https://clettr.com:3000",
+  "https://clettr.com",
 ];
 const corsOptions = {
   origin: allowedOrigins,
