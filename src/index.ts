@@ -46,6 +46,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+export const file_size_limit = 25 * 1024 * 1024;
+const multer = require("multer");
+let upload = multer({
+  limits: { fieldSize: file_size_limit },
+});
+app.use(upload.array("image"));
+
 // ----> Passport JS
 InitializePassport(passport);
 app.use(cookieParser(process.env.SESSION_SECRET_CODE));

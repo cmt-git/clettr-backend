@@ -9,11 +9,6 @@ import {
 } from "typeorm";
 import { userEntity } from "./userEntity";
 
-export enum UserType {
-  USER = "user",
-  ADMIN = "admin",
-}
-
 // -> no capital letters for entity name
 @Entity({ name: "user_info_entity" })
 export class userInfoEntity extends BaseEntity {
@@ -95,15 +90,74 @@ export class userInfoEntity extends BaseEntity {
   node_used: string;
 
   @Column({
-    name: "roles",
-    default: "user",
-    type: "enum",
-    enum: UserType,
+    default: null,
+    length: 1000,
   })
-  roles: string;
+  question_1: string;
 
   @Column({
-    default: false,
+    default: null,
+    length: 1000,
   })
-  banned: boolean;
+  question_2: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  question_3: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  question_4: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  question_5: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  question_6: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  question_7: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  question_8: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  question_9: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  government_id: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  government_id_1: string;
+
+  @Column({
+    default: null,
+    length: 1000,
+  })
+  government_id_2: string;
 }

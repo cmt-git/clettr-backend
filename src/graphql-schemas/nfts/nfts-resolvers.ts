@@ -4,6 +4,7 @@ import { userEntity } from "../../entity/user/userEntity";
 import { userInfoEntity } from "../../entity/user/userInfoEntity";
 import { userPlayHistory } from "../../entity/user/userPlayHistory";
 import { userSetEntity } from "../../entity/user/userSetEntity";
+import { getNFTHandler } from "./scripts/getNFTHandler";
 
 const resolvers = {
   Query: {
@@ -15,11 +16,10 @@ const resolvers = {
         let user_type =
           args.not_user !== true
             ? "(current_owner = :value or current_owner.username = :value)"
-            : //"(current_owner.username = :value)"
-              "(current_owner != :value)";
+            : "(current_owner.username = :username and current_owner != :value)";
+        //"()";
 
         if (args.filters == null) {
-          console.log(args.username, user_type);
           query = await getConnection()
             .getRepository(nftEntity)
             .createQueryBuilder("nft_entity")
@@ -27,7 +27,7 @@ const resolvers = {
             .leftJoinAndSelect("nft_entity.original_owner", "original_owner")
             .where(
               `${user_type} and (nft_entity.status != 'burned' or nft_entity.status is null)`,
-              { value: args.username != null ? args.username : context.user.id }
+              { value: context.user.id, username: args.username }
             )
             .offset(!args.page ? 0 : (args.page - 1) * 10)
             .limit(30)
@@ -50,8 +50,8 @@ const resolvers = {
               .where(
                 `${user_type} and (nft_entity.status != 'burned' or nft_entity.status is null) and (nft_entity.nft_type = 'active') ${filter_stars}`,
                 {
-                  value:
-                    args.username != null ? args.username : context.user.id,
+                  value: context.user.id,
+                  username: args.username,
                 }
               )
               .offset(!args.page ? 0 : (args.page - 1) * 10)
@@ -70,8 +70,8 @@ const resolvers = {
               .where(
                 `${user_type} and (nft_entity.status != 'burned' or nft_entity.status is null) and (nft_entity.nft_type = 'passive') ${filter_stars}`,
                 {
-                  value:
-                    args.username != null ? args.username : context.user.id,
+                  value: context.user.id,
+                  username: args.username,
                 }
               )
               .offset(!args.page ? 0 : (args.page - 1) * 10)
@@ -81,6 +81,7 @@ const resolvers = {
           }
         }
 
+        console.log(query, " - username");
         //? sync null filters to variables with default: null on nftEntity
         for (let i = 0; i < query.length; i++) {
           nft_arr.push({
@@ -283,11 +284,13 @@ const resolvers = {
           });
         }
 
-        console.log(data);
         return {
           user_play_history: data,
         };
       }
+    },
+    nft: async (parent, args, context) => {
+      return await getNFTHandler(parent, args, context);
     },
   },
 };

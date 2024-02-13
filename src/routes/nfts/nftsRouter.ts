@@ -8,6 +8,9 @@ import {
   userTransactionEntity,
 } from "../../entity/user/userTransaction";
 import { userTransactionHandle } from "../user/scripts/handleUserTransactions";
+import { nftCreateHandler } from "./scripts/nftCreateHandler";
+import { nftUpdateHandler } from "./scripts/nftUpdateHandler";
+import { nftEnforcement } from "./scripts/nftEnforcement";
 
 const nftsRouter = Router();
 nftsRouter.use(express.json());
@@ -411,4 +414,121 @@ nftsRouter.post("/market_buy", async (req: any, res: any, next) => {
       success: false,
     });
   }
+});
+
+nftsRouter.post("/create", async (req: any, res: any, next) => {
+  let { type, token_id, token_uri, price } = req.body;
+
+  if (req.isAuthenticated()) {
+    const Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const getHash = (length: number) => {
+      let hash = "";
+
+      for (let x = 0; x < length; x++) {
+        let rand = Math.floor(Math.random() * 2);
+
+        if (rand == 0) {
+          hash += (Math.floor(Math.random() * 9) + 1).toString();
+        } else {
+          hash += Letters[Math.floor(Math.random() * Letters.length)];
+        }
+      }
+      return hash;
+    };
+
+    if (type == "active") {
+      const nft_entity = await nftEntity
+        .create({
+          current_owner: req.user,
+          original_owner: req.user,
+          nft_token_id: token_id,
+          nft_token_uri: token_uri,
+          nft_type: type,
+          nft_traits: `${Letters[Math.floor(Math.random() * Letters.length)]}-${
+            [
+              "pink",
+              "purple",
+              "blue",
+              "teal",
+              "lime",
+              "green",
+              "yellow",
+              "orange",
+              "red",
+            ][Math.floor(Math.random() * 9)]
+          }-${
+            ["striped", "spotted", "zigzag", "checkered", "cross", "sharp"][
+              Math.floor(Math.random() * 6)
+            ]
+          }`,
+          nft_hash: getHash(2),
+          nft_stars: 1,
+        })
+        .save();
+
+      await userTransactionHandle({
+        user: req.user,
+        description: `Bought Active NFT #${nft_entity.id}`,
+        transaction_type: transactionType.MARKET_BUY,
+        transaction_currency: transactionCurrency.ETTR,
+        transaction_amount: -49.99,
+      });
+
+      return res.status(200).send({
+        message: "Active NFT has been minted!",
+        success: true,
+      });
+    }
+
+    if (type == "passive") {
+      const nft_entity = await nftEntity
+        .create({
+          current_owner: req.user,
+          original_owner: req.user,
+          nft_token_id: token_id,
+          nft_token_uri: token_uri,
+          nft_type: type,
+          nft_traits: [
+            "pink",
+            "purple",
+            "blue",
+            "teal",
+            "lime",
+            "green",
+            "yellow",
+            "orange",
+            "red",
+          ][Math.floor(Math.random() * 9)],
+          nft_hash: getHash(10),
+          nft_stars: 1,
+          nft_requirement: randomRequirement(),
+        })
+        .save();
+
+      await userTransactionHandle({
+        user: req.user,
+        transaction_type: transactionType.MARKET_BUY,
+        description: `Bought Passive NFT #${nft_entity.id}`,
+        transaction_amount: -4.99,
+        transaction_currency: transactionCurrency.USDC,
+      });
+
+      return res.status(200).send({
+        message: "Passive NFT has been minted!",
+        success: true,
+      });
+    }
+  }
+});
+
+nftsRouter.post("/customcreate", async (req: any, res: any, next) => {
+  return await nftCreateHandler(req, res, next);
+});
+
+nftsRouter.post("/update", async (req: any, res: any, next) => {
+  return await nftUpdateHandler(req, res, next);
+});
+
+nftsRouter.post("/enforcement", async (req: any, res: any, next) => {
+  return await nftEnforcement(req, res, next);
 });

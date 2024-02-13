@@ -57,6 +57,7 @@ const typeDefs = gql`
     user_set: userSet
     market_nfts(page: Int): MarketNFTs
     user_play_history_query(page: Int): userPlayHistory
+    nft(id: Int): NFTs
   }
 `;
 
