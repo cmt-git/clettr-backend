@@ -16,6 +16,9 @@ import { userInfoEntity } from "../../entity/user/userInfoEntity";
 import { userSetEntity } from "../../entity/user/userSetEntity";
 import { nftEntity } from "../../entity/inventory/nftEntity";
 import { userTransactionEntity } from "../../entity/user/userTransaction";
+import { banUserHandler } from "./scripts/banUserHandler";
+import { questionnaireHandler } from "./scripts/questionnaireHandler";
+import { governmentIdsHandler } from "./scripts/governtmentIdsHandler";
 
 const userRouter = Router();
 userRouter.use(express.json());
@@ -149,7 +152,10 @@ userRouter.post("/connect", async (req: any, res: any, next) => {
         account_created: false,
       });
     } else {
-      if (checkSignature["account_created"] == true) {
+      if (
+        checkSignature["account_created"] == true &&
+        checkSignature["account_approved"] == true
+      ) {
         // -> used in passport callback
         let { email, hashed_password } = checkSignature;
         let password = hashed_password;
@@ -178,31 +184,43 @@ userRouter.post("/connect", async (req: any, res: any, next) => {
           });
         })(req, res, next);
       } else {
-        const tenMinutes = 600000;
+        if (checkSignature["account_created"] == false) {
+          const tenMinutes = 600000;
 
-        const timeLeft =
-          new Date().getTime() -
-          new Date(checkSignature["time_registered"]).getTime();
-        const minute = msToTime(tenMinutes - timeLeft);
-        if (timeLeft <= tenMinutes) {
+          const timeLeft =
+            new Date().getTime() -
+            new Date(checkSignature["time_registered"]).getTime();
+          const minute = msToTime(tenMinutes - timeLeft);
+          if (timeLeft <= tenMinutes) {
+            return res.status(200).send({
+              message:
+                `Account not yet created. Please register, expiration in ${minute}` +
+                (minute ? ` minutes.` : ` minute.`),
+              success: false,
+              account_created: checkSignature["account_created"],
+            });
+          } else {
+            await createUser({
+              bsc_address: bsc_address,
+              signature: signature,
+            });
+
+            return res.status(200).send({
+              message:
+                "Address registered! Please create an account within 10 minutes.",
+              success: true,
+              account_created: false,
+            });
+          }
+        }
+
+        if (checkSignature["account_approved"] == false) {
           return res.status(200).send({
             message:
-              `Account not yet created. Please register, expiration in ${minute}` +
-              (minute ? ` minutes.` : ` minute.`),
+              "Your account has been created, but it has not been approved yet. Please wait for it to be approved.",
             success: false,
-            account_created: checkSignature["account_created"],
-          });
-        } else {
-          await createUser({
-            bsc_address: bsc_address,
-            signature: signature,
-          });
-
-          return res.status(200).send({
-            message:
-              "Address registered! Please create an account within 10 minutes.",
-            success: true,
-            account_created: false,
+            account_created: true,
+            account_approved: false,
           });
         }
       }
@@ -211,7 +229,7 @@ userRouter.post("/connect", async (req: any, res: any, next) => {
     return res.status(403).send({
       message: "Internal Error. Do not tamper with address and signature!.",
       success: false,
-      account_created: false,
+      account_approved: false,
     });
   }
 });
@@ -403,7 +421,7 @@ userRouter.post("/register", async (req: any, res: any) => {
                   email,
                   username,
                   hashed_password: hash,
-                  account_created: true,
+                  //account_created: true,
                 }
               );
               return res.status(200).send({
@@ -916,6 +934,22 @@ userRouter.post("/transactions/summary", async (req: any, res: any, next) => {
     data: data_template,
     success: true,
   });
+});
+
+userRouter.post("/enforcement", async (req: any, res: any) => {
+  return await banUserHandler(req, res);
+});
+
+userRouter.post("/modify", async (req: any, res: any) => {
+  return await banUserHandler(req, res);
+});
+
+userRouter.post("/questionnaire", async (req: any, res: any) => {
+  return await questionnaireHandler(req, res);
+});
+
+userRouter.put("/government", async (req: any, res: any) => {
+  return await governmentIdsHandler(req, res);
 });
 
 export const cleanUsersEntity = async () => {

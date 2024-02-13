@@ -6,6 +6,11 @@ import {
   CreateDateColumn,
 } from "typeorm";
 
+export enum UserType {
+  USER = "user",
+  ADMIN = "admin",
+}
+
 // -> no capital letters for entity name
 @Entity({ name: "user_entity" })
 export class userEntity extends BaseEntity {
@@ -50,8 +55,26 @@ export class userEntity extends BaseEntity {
   account_created: boolean;
 
   @Column({
+    default: false,
+  })
+  account_approved: boolean;
+
+  @Column({
     length: 200,
     default: null,
   })
   qr_code: string;
+
+  @Column({
+    name: "roles",
+    default: "user",
+    type: "enum",
+    enum: UserType,
+  })
+  roles: string;
+
+  @Column({
+    default: false,
+  })
+  banned: boolean;
 }

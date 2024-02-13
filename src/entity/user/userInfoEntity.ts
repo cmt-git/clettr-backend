@@ -9,11 +9,6 @@ import {
 } from "typeorm";
 import { userEntity } from "./userEntity";
 
-export enum UserType {
-  USER = "user",
-  ADMIN = "admin",
-}
-
 // -> no capital letters for entity name
 @Entity({ name: "user_info_entity" })
 export class userInfoEntity extends BaseEntity {
@@ -93,19 +88,6 @@ export class userInfoEntity extends BaseEntity {
     default: null,
   })
   node_used: string;
-
-  @Column({
-    name: "roles",
-    default: "user",
-    type: "enum",
-    enum: UserType,
-  })
-  roles: string;
-
-  @Column({
-    default: false,
-  })
-  banned: boolean;
 
   @Column({
     default: null,

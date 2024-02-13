@@ -5,6 +5,8 @@ import { userInfoEntity } from "../../entity/user/userInfoEntity";
 import { userPlayHistory } from "../../entity/user/userPlayHistory";
 import { userTransactionResolver } from "./scripts/user_transaction_entity_resolver";
 import { userTransactionTotal } from "./scripts/user_transactions_total";
+import { AdminLogsEntityResolver } from "./scripts/admin_logs_entity_resolver";
+import { userInfosHandler } from "./scripts/userInfosHandler";
 
 const resolvers = {
   Query: {
@@ -179,6 +181,12 @@ const resolvers = {
     },
     user_transactions_total: async (parent, args, context) => {
       return await userTransactionTotal(parent, args, context);
+    },
+    user_infos: async (parent, args, context) => {
+      return await userInfosHandler(parent, args, context);
+    },
+    admin_logs_entity: async (parent, args, context) => {
+      return await AdminLogsEntityResolver(parent, args, context);
     },
   },
 };

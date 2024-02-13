@@ -10058,33 +10058,18 @@
   "ast": {
     "absolutePath": "project:/contracts/Ettr.sol",
     "exportedSymbols": {
-      "Context": [
-        2032
-      ],
-      "ERC20": [
-        585
-      ],
-      "Ettr": [
-        3064
-      ],
-      "IERC20": [
-        663
-      ],
-      "IERC20Metadata": [
-        688
-      ]
+      "Context": [2032],
+      "ERC20": [585],
+      "Ettr": [3064],
+      "IERC20": [663],
+      "IERC20Metadata": [688]
     },
     "id": 3065,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 2922,
-        "literals": [
-          "solidity",
-          "^",
-          "0.8",
-          ".5"
-        ],
+        "literals": ["solidity", "^", "0.8", ".5"],
         "nodeType": "PragmaDirective",
         "src": "34:23:14"
       },
@@ -10120,13 +10105,7 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "id": 3064,
-        "linearizedBaseContracts": [
-          3064,
-          585,
-          688,
-          663,
-          2032
-        ],
+        "linearizedBaseContracts": [3064, 585, 688, 663, 2032],
         "name": "Ettr",
         "nameLocation": "125:4:14",
         "nodeType": "ContractDefinition",
@@ -10346,9 +10325,7 @@
               "src": "395:352:14",
               "statements": [
                 {
-                  "assignments": [
-                    2953
-                  ],
+                  "assignments": [2953],
                   "declarations": [
                     {
                       "constant": false,
@@ -10521,9 +10498,7 @@
                   "src": "513:52:14"
                 },
                 {
-                  "assignments": [
-                    2965
-                  ],
+                  "assignments": [2965],
                   "declarations": [
                     {
                       "constant": false,
@@ -11515,9 +11490,7 @@
               "src": "1072:148:14",
               "statements": [
                 {
-                  "assignments": [
-                    3037
-                  ],
+                  "assignments": [3037],
                   "declarations": [
                     {
                       "constant": false,
