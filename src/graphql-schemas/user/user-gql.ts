@@ -17,22 +17,6 @@ const typeDefs = gql`
     roles: String!
   }
 
-  type Admin_User_Info {
-    question_1: String
-    question_2: String
-    question_3: String
-    question_4: String
-    question_5: String
-    question_6: String
-    question_7: String
-    question_8: String
-    question_9: String
-    government_id: String
-    government_id_1: String
-    government_id_2: String
-    username: String
-  }
-
   type User_Info {
     current_energy: Int!
     max_energy: Int!
@@ -49,6 +33,9 @@ const typeDefs = gql`
     node_used: String
     total_gains: String!
     total_rounds: Int!
+  }
+
+  type Admin_User_Info {
     question_1: String
     question_2: String
     question_3: String
@@ -61,6 +48,7 @@ const typeDefs = gql`
     government_id: String
     government_id_1: String
     government_id_2: String
+    username: String
   }
 
   type user_transaction {

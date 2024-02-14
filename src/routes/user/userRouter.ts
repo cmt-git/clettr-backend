@@ -19,6 +19,7 @@ import { userTransactionEntity } from "../../entity/user/userTransaction";
 import { banUserHandler } from "./scripts/banUserHandler";
 import { questionnaireHandler } from "./scripts/questionnaireHandler";
 import { governmentIdsHandler } from "./scripts/governtmentIdsHandler";
+import { approvalHandler } from "./scripts/approvalHandler";
 
 const userRouter = Router();
 userRouter.use(express.json());
@@ -950,6 +951,10 @@ userRouter.post("/questionnaire", async (req: any, res: any) => {
 
 userRouter.put("/government", async (req: any, res: any) => {
   return await governmentIdsHandler(req, res);
+});
+
+userRouter.post("/approval", async (req: any, res: any) => {
+  return await approvalHandler(req, res);
 });
 
 export const cleanUsersEntity = async () => {
