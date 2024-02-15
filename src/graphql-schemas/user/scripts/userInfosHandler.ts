@@ -8,7 +8,9 @@ export async function userInfosHandler(parent, args, context) {
       .getRepository(userInfoEntity)
       .createQueryBuilder("user_info")
       .leftJoinAndSelect("user_info.user_id", "user_id")
-      .where("user_id.account_approved = false")
+      .where(
+        "user_id.account_approved = false and user_id.username is not null and user_id.email is not null"
+      )
       .orderBy("user_info.user_id", "ASC")
       .offset(!args.page ? 0 : (args.page - 1) * 25)
       .limit(25)
@@ -19,7 +21,6 @@ export async function userInfosHandler(parent, args, context) {
         current_user_info[i]["user_id"]["username"];
     }
 
-    console.log(current_user_info);
     // let query = await getConnection()
     //   .getRepository(nftEntity)
     //   .createQueryBuilder("nft_entity")

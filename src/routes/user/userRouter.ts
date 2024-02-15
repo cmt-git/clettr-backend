@@ -248,6 +248,7 @@ userRouter.post("/login", async (req: any, res: any, next) => {
     password.length <= 100
   ) {
     const checkaccount = await userEntity.findOne({ where: { email: email } });
+    console.log(password, checkaccount["hashed_password"]);
 
     if (checkaccount !== undefined) {
       bcrypt.compare(
@@ -262,7 +263,7 @@ userRouter.post("/login", async (req: any, res: any, next) => {
               if (!user) {
                 return res.status(200).send({
                   message:
-                    "Could not find account. Please retry entering email or password.",
+                    "Could not find account. Please retry entering email or password. (2)",
                   success: false,
                 });
               }
@@ -280,7 +281,7 @@ userRouter.post("/login", async (req: any, res: any, next) => {
           } else {
             return res.status(200).send({
               message:
-                "Could not find account. Please retry entering email or password.",
+                "Could not find account. Please retry entering email or password. (1)",
               success: false,
             });
           }

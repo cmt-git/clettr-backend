@@ -22,7 +22,9 @@ const resolvers = {
           const query_user = await userEntity.findOne({
             where: { username: args.username },
           });
+          console.log(query_user, " - query - ", args.username);
           if (query_user === undefined) {
+            console.log("====asdkjhashdk============***");
             return null;
           } else {
             currentUser = query_user;
@@ -34,7 +36,6 @@ const resolvers = {
           currentUser = context.user;
           currentUser._2fa_enabled = context.user.qr_code !== null;
         }
-
         return currentUser;
       } else {
         return null;
