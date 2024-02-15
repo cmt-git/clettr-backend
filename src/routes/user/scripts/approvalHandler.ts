@@ -20,7 +20,7 @@ export async function approvalHandler(req: any, res: any) {
 
       await adminLogsEntity
         .create({
-          description: `${req.user.username} has been approved the account of ${username}.`,
+          description: `${req.user.username} has approved the account of ${username}.`,
         })
         .save();
 
@@ -38,7 +38,7 @@ export async function approvalHandler(req: any, res: any) {
 
       await adminLogsEntity
         .create({
-          description: `${req.user.username} has been rejected the account of ${username}.`,
+          description: `${req.user.username} has rejected the account of ${username}.`,
         })
         .save();
 
