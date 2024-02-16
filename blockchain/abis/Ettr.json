@@ -10058,33 +10058,18 @@
   "ast": {
     "absolutePath": "project:/contracts/Ettr.sol",
     "exportedSymbols": {
-      "Context": [
-        2137
-      ],
-      "ERC20": [
-        690
-      ],
-      "Ettr": [
-        3313
-      ],
-      "IERC20": [
-        768
-      ],
-      "IERC20Metadata": [
-        793
-      ]
+      "Context": [2137],
+      "ERC20": [690],
+      "Ettr": [3313],
+      "IERC20": [768],
+      "IERC20Metadata": [793]
     },
     "id": 3314,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 3171,
-        "literals": [
-          "solidity",
-          "^",
-          "0.8",
-          ".5"
-        ],
+        "literals": ["solidity", "^", "0.8", ".5"],
         "nodeType": "PragmaDirective",
         "src": "34:23:15"
       },
@@ -10120,13 +10105,7 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "id": 3313,
-        "linearizedBaseContracts": [
-          3313,
-          690,
-          793,
-          768,
-          2137
-        ],
+        "linearizedBaseContracts": [3313, 690, 793, 768, 2137],
         "name": "Ettr",
         "nameLocation": "125:4:15",
         "nodeType": "ContractDefinition",
@@ -10346,9 +10325,7 @@
               "src": "395:352:15",
               "statements": [
                 {
-                  "assignments": [
-                    3202
-                  ],
+                  "assignments": [3202],
                   "declarations": [
                     {
                       "constant": false,
@@ -10521,9 +10498,7 @@
                   "src": "513:52:15"
                 },
                 {
-                  "assignments": [
-                    3214
-                  ],
+                  "assignments": [3214],
                   "declarations": [
                     {
                       "constant": false,
@@ -11515,9 +11490,7 @@
               "src": "1072:148:15",
               "statements": [
                 {
-                  "assignments": [
-                    3286
-                  ],
+                  "assignments": [3286],
                   "declarations": [
                     {
                       "constant": false,
@@ -11982,12 +11955,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x225dEeCA7F600529d13AF934D2425A742589D81B",
-      "transactionHash": "0x5c165d2d8abb16730830224651a0db6b31af57840184869dc0cb3c18286ac196"
+      "address": "0x475677199D70600c2B4a750766c540A3CA9809e9",
+      "transactionHash": "0xa54b60e34e7ff8d54d495233b6e4f3086fa85bdbbb235508e6580396aebe5e82"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-02-15T08:30:25.399Z",
+  "updatedAt": "2024-02-16T00:37:55.430Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

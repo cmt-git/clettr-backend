@@ -74,6 +74,7 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
           hash += Letters[Math.floor(Math.random() * Letters.length)];
         }
       }
+
       return hash;
     };
 
