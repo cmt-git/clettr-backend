@@ -17,6 +17,7 @@ import schemas from "./graphql-schemas/schema";
 
 import { createClient } from "redis";
 import { setupSocket } from "./socket/socket";
+import { generateWeeklyHashes } from "./routes/hashes/hashesRouter";
 
 const dotenv = require("dotenv").config();
 const app = express();
