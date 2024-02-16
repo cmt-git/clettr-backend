@@ -113,7 +113,7 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
         description: `Bought Active NFT #${nft_entity.id}`,
         transaction_type: transactionType.MARKET_BUY,
         transaction_currency: transactionCurrency.ETTR,
-        transaction_amount: -49.99,
+        transaction_amount: 50.0,
       });
 
       return res.status(200).send({
@@ -151,7 +151,7 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
         user: req.user,
         transaction_type: transactionType.MARKET_BUY,
         description: `Bought Passive NFT #${nft_entity.id}`,
-        transaction_amount: -4.99,
+        transaction_amount: -5.0,
         transaction_currency: transactionCurrency.USDC,
       });
 
@@ -280,13 +280,13 @@ nftsRouter.post("/forge", async (req: any, res: any, next) => {
         description: `Forged NFT #${nft_entity.id}`,
         transaction_amount:
           current_star == 1
-            ? -99.99
+            ? -100
             : current_star == 2
-            ? -199.99
+            ? -200
             : current_star == 3
-            ? -299.99
+            ? -300
             : current_star == 4
-            ? -499.99
+            ? -500
             : 0,
         transaction_currency: transactionCurrency.ETTR,
       });
@@ -472,7 +472,7 @@ nftsRouter.post("/create", async (req: any, res: any, next) => {
         description: `Bought Active NFT #${nft_entity.id}`,
         transaction_type: transactionType.MARKET_BUY,
         transaction_currency: transactionCurrency.ETTR,
-        transaction_amount: -49.99,
+        transaction_amount: -50,
       });
 
       return res.status(200).send({
@@ -510,7 +510,7 @@ nftsRouter.post("/create", async (req: any, res: any, next) => {
         user: req.user,
         transaction_type: transactionType.MARKET_BUY,
         description: `Bought Passive NFT #${nft_entity.id}`,
-        transaction_amount: -4.99,
+        transaction_amount: -5,
         transaction_currency: transactionCurrency.USDC,
       });
 
