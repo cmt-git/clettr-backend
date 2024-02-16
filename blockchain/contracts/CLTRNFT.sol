@@ -71,9 +71,11 @@ contract CLTRNFT is ERC721, Ownable{
         if (_type == 0)  {
             require(E.get_ettr_balance_subtract(msg.sender, _amount), "Insufficient ETTR balance");
             E.ettr_burn(msg.sender, _amount);
+            E.external_ettr_mint(ownerOf(_tokenId), _amount);
         } else if (_type == 1) {
             require(S.get_susdc_balance_subtract(msg.sender, _amount), "Insufficient sUSDC balance");
             S.susdc_burn(msg.sender, _amount);
+            S.external_susdc_mint(ownerOf(_tokenId), _amount);
         } else {
             revert("Invalid token type");
         }
