@@ -13,6 +13,7 @@ import {
   userTransactionEntity,
 } from "../../entity/user/userTransaction";
 import { userTransactionHandle } from "../user/scripts/handleUserTransactions";
+import { EttrModify } from "../simulation/simulationRouter";
 
 const playRouter = Router();
 playRouter.use(express.json());
@@ -364,7 +365,7 @@ const calculateRewards = async (json: any) => {
       .execute();
 
     await userTransactionHandle({
-      user: json.user.id,
+      user: node.current_owner.id,
       transaction_type: transactionType.COMMUNITY,
       description: `Play Reward: ${reward * 0.05}`,
       transaction_amount: Number(reward * 0.05),

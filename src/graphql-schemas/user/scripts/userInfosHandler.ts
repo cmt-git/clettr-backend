@@ -2,7 +2,6 @@ import { getConnection } from "typeorm";
 import { userInfoEntity } from "../../../entity/user/userInfoEntity";
 
 export async function userInfosHandler(parent, args, context) {
-  console.log(context.user, context.user.roles);
   if (context.user !== undefined && context.user.roles == "admin") {
     const current_user_info = await getConnection()
       .getRepository(userInfoEntity)

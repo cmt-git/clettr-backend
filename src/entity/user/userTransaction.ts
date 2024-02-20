@@ -12,11 +12,19 @@ import {
 import { userEntity } from "./userEntity";
 
 export enum transactionType {
-  MARKET_BUY = "market_buy",
-  MARKET_SELL = "market_sell",
+  MARKET_BUY = "market_buy", // not in use
+  MARKET_SELL = "market_sell", // not in use
   PLAY = "play",
   COMMUNITY = "community",
-  FORGE = "forge",
+  FORGE = "forge", // not in use
+  FORGE_ACTIVE = "forge_active",
+  FORGE_PASSIVE = "forge_passive",
+  MINT_PASSIVE = "mint_active",
+  MINT_ACTIVE = "mint_passive",
+  MARKET_BUY_PASSIVE = "market_buy_passive", // not in use
+  MARKET_BUY_ACTIVE = "market_buy_active", // not in use
+  MARKET_SELL_PASSIVE = "market_sell_passive", // not in use
+  MARKET_SELL_ACTIVE = "market_sell_active", // not in use
 }
 
 export enum transactionCurrency {
