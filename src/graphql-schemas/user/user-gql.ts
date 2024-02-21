@@ -79,7 +79,11 @@ const typeDefs = gql`
     user_info: User_Info
     user_infos(page: Int): [Admin_User_Info]
     user_earnings_query: User_Earnings
-    user_transactions(page: Int): [user_transaction]
+    user_transactions(
+      page: Int
+      global: Boolean
+      username: String
+    ): [user_transaction]
     user_transactions_total: Int!
     admin_logs_entity(page: Int): [AdminLogs]
   }

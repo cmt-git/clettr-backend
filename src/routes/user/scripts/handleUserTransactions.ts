@@ -22,5 +22,7 @@ export async function userTransactionHandle(data: {
     })
     .save();
 
-  await EttrModify(data.transaction_amount);
+  if (data.transaction_currency == transactionCurrency.ETTR) {
+    await EttrModify(data.transaction_amount);
+  }
 }

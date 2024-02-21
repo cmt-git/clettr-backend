@@ -20,6 +20,11 @@ import { banUserHandler } from "./scripts/banUserHandler";
 import { questionnaireHandler } from "./scripts/questionnaireHandler";
 import { governmentIdsHandler } from "./scripts/governtmentIdsHandler";
 import { approvalHandler } from "./scripts/approvalHandler";
+import { transactionSummaryHandler } from "./scripts/transactionSummaryHandler";
+import { usernameChangeHandler } from "./scripts/usernameChangeHandler";
+import { passwordChangeHandler } from "./scripts/passwordChangeHandler";
+import { emailModifyHandler } from "./scripts/emailModifyHandler";
+import { authGenerateHandler } from "./scripts/authGenerateHandler";
 
 const userRouter = Router();
 userRouter.use(express.json());
@@ -302,21 +307,28 @@ userRouter.post("/login", async (req: any, res: any, next) => {
   }
 });
 
-userRouter.post("/logout", async (req: any, res: any, next) => {
-  if (req.user != undefined) {
-    req.session.destroy();
-
-    return res.status(200).send({
-      message: "Logged Out.",
-      success: true,
-    });
-  } else {
-    return res.status(403).send({
-      message: "Internal Error.",
-      success: false,
-    });
-  }
+userRouter.post("/username/modify", async (req: any, res: any, next) => {
+  return await usernameChangeHandler(req, res);
 });
+
+userRouter.post("/auth/generate", async (req: any, res: any, next) => {
+  const { email, bsc_address } = req.body;
+
+  return await generateAuthenticationCode(
+    { email: email, bsc_address: bsc_address },
+    res
+  );
+});
+
+userRouter.post("/email/modify", async (req: any, res: any, next) => {
+  return await emailModifyHandler(req, res);
+});
+
+userRouter.post("/password/modify", async (req: any, res: any, next) => {
+  return await passwordChangeHandler(req, res);
+});
+
+userRouter.post("/logout", async (req: any, res: any, next) => {});
 
 userRouter.post("/register", async (req: any, res: any) => {
   let {
@@ -557,385 +569,8 @@ userRouter.post("/updateset", async (req: any, res: any) => {
   }
 });
 
-userRouter.post("/transactions/summary", async (req: any, res: any, next) => {
-  console.log("transactions summary called");
-  const { to_date, from_date } = req.body;
-  let data_template: {
-    total_earned_ettr: number;
-    total_earned_usdc: number;
-    total_lost_ettr: number;
-    total_lost_usdc: number;
-    number_of_transactions: number;
-    number_of_market_buys: number;
-    number_of_market_sells: number;
-    number_of_community_earnings: number;
-    number_of_plays: number;
-    number_of_forges: number;
-  } = {
-    total_earned_ettr: 0,
-    total_earned_usdc: 0,
-    total_lost_ettr: 0,
-    total_lost_usdc: 0,
-    number_of_transactions: 0,
-    number_of_market_buys: 0,
-    number_of_market_sells: 0,
-    number_of_community_earnings: 0,
-    number_of_plays: 0,
-    number_of_forges: 0,
-  };
-
-  if (req.user !== undefined) {
-    if (to_date != null && from_date != null && from_date < to_date) {
-      data_template = {
-        total_earned_ettr:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "ettr",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount > 0")
-              .andWhere(
-                "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-                {
-                  date2: from_date,
-                  date1: to_date,
-                  // replace "2024-01-01" and "2024-01-02" with your actual date strings
-                }
-              )
-              .getRawOne()
-          ).sum || 0,
-        total_earned_usdc:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "usdc",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount > 0")
-              .andWhere(
-                "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-                {
-                  date2: from_date,
-                  date1: to_date,
-                  // replace "2024-01-01" and "2024-01-02" with your actual date strings
-                }
-              )
-              .getRawOne()
-          ).sum || 0,
-        total_lost_ettr:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "ettr",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount < 0")
-              .andWhere(
-                "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-                {
-                  date2: from_date,
-                  date1: to_date,
-                  // replace "2024-01-01" and "2024-01-02" with your actual date strings
-                }
-              )
-              .getRawOne()
-          ).sum || 0,
-        total_lost_usdc:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "usdc",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount < 0")
-              .andWhere(
-                "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-                {
-                  date2: from_date,
-                  date1: to_date,
-                  // replace "2024-01-01" and "2024-01-02" with your actual date strings
-                }
-              )
-              .getRawOne()
-          ).sum || 0,
-        number_of_transactions: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere(
-            "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-            {
-              date2: from_date,
-              date1: to_date,
-              // replace "2024-01-01" and "2024-01-02" with your actual date strings
-            }
-          )
-          .getCount(),
-        number_of_market_buys: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere(
-            "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-            {
-              date2: from_date,
-              date1: to_date,
-              // replace "2024-01-01" and "2024-01-02" with your actual date strings
-            }
-          )
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "market_buy",
-          })
-          .getCount(),
-        number_of_market_sells: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "market_sell",
-          })
-          .andWhere(
-            "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-            {
-              date2: from_date,
-              date1: to_date,
-              // replace "2024-01-01" and "2024-01-02" with your actual date strings
-            }
-          )
-          .getCount(),
-        number_of_community_earnings: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "community",
-          })
-          .andWhere(
-            "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-            {
-              date2: from_date,
-              date1: to_date,
-              // replace "2024-01-01" and "2024-01-02" with your actual date strings
-            }
-          )
-          .getCount(),
-        number_of_plays: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "play",
-          })
-          .andWhere(
-            "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-            {
-              date2: from_date,
-              date1: to_date,
-              // replace "2024-01-01" and "2024-01-02" with your actual date strings
-            }
-          )
-          .getCount(),
-        number_of_forges: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "forge",
-          })
-          .andWhere(
-            "(user_transaction_entity.transaction_date >= :date2 AND user_transaction_entity.transaction_date <= :date1)",
-            {
-              date2: from_date,
-              date1: to_date,
-              // replace "2024-01-01" and "2024-01-02" with your actual date strings
-            }
-          )
-          .getCount(),
-      };
-    } else {
-      data_template = {
-        total_earned_ettr:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "ettr",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount > 0")
-              .getRawOne()
-          ).sum || 0,
-        total_earned_usdc:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "usdc",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount > 0")
-              .getRawOne()
-          ).sum || 0,
-        total_lost_ettr:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "ettr",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount < 0")
-              .getRawOne()
-          ).sum || 0,
-        total_lost_usdc:
-          (
-            await getConnection()
-              .getRepository(userTransactionEntity)
-              .createQueryBuilder("user_transaction_entity")
-              .select("SUM(user_transaction_entity.transaction_amount)", "sum")
-              .where("user_transaction_entity.user_id = :userId", {
-                userId: req.user.id,
-              })
-              .andWhere(
-                "user_transaction_entity.transaction_currency = :currency",
-                {
-                  currency: "usdc",
-                }
-              )
-              .andWhere("user_transaction_entity.transaction_amount < 0")
-              .getRawOne()
-          ).sum || 0,
-        number_of_transactions: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .getCount(),
-        number_of_market_buys: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "market_buy",
-          })
-          .getCount(),
-        number_of_market_sells: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "market_sell",
-          })
-          .getCount(),
-        number_of_community_earnings: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "community",
-          })
-          .getCount(),
-        number_of_plays: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "play",
-          })
-          .getCount(),
-        number_of_forges: await getConnection()
-          .getRepository(userTransactionEntity)
-          .createQueryBuilder("user_transaction_entity")
-          .where("user_transaction_entity.user_id = :userId", {
-            userId: req.user.id,
-          })
-          .andWhere("user_transaction_entity.transaction_type = :type", {
-            type: "forge",
-          })
-          .getCount(),
-      };
-    }
-  }
-
-  return res.status(200).send({
-    data: data_template,
-    success: true,
-  });
+userRouter.post("/transactions/summary", async (req: any, res: any) => {
+  return await transactionSummaryHandler(req, res);
 });
 
 userRouter.post("/enforcement", async (req: any, res: any) => {
