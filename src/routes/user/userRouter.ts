@@ -21,6 +21,10 @@ import { questionnaireHandler } from "./scripts/questionnaireHandler";
 import { governmentIdsHandler } from "./scripts/governtmentIdsHandler";
 import { approvalHandler } from "./scripts/approvalHandler";
 import { transactionSummaryHandler } from "./scripts/transactionSummaryHandler";
+import { usernameChangeHandler } from "./scripts/usernameChangeHandler";
+import { passwordChangeHandler } from "./scripts/passwordChangeHandler";
+import { emailModifyHandler } from "./scripts/emailModifyHandler";
+import { authGenerateHandler } from "./scripts/authGenerateHandler";
 
 const userRouter = Router();
 userRouter.use(express.json());
@@ -303,20 +307,25 @@ userRouter.post("/login", async (req: any, res: any, next) => {
   }
 });
 
-userRouter.post("/logout", async (req: any, res: any, next) => {
-  if (req.user != undefined) {
-    req.session.destroy();
+userRouter.post("/username/modify", async (req: any, res: any, next) => {
+  return await usernameChangeHandler(req, res);
+});
 
-    return res.status(200).send({
-      message: "Logged Out.",
-      success: true,
-    });
-  } else {
-    return res.status(403).send({
-      message: "Internal Error.",
-      success: false,
-    });
-  }
+userRouter.post("/auth/generate", async (req: any, res: any, next) => {
+  const { email, bsc_address } = req.body;
+
+  return await generateAuthenticationCode(
+    { email: email, bsc_address: bsc_address },
+    res
+  );
+});
+
+userRouter.post("/email/modify", async (req: any, res: any, next) => {
+  return await emailModifyHandler(req, res);
+});
+
+userRouter.post("/password/modify", async (req: any, res: any, next) => {
+  return await passwordChangeHandler(req, res);
 });
 
 userRouter.post("/logout", async (req: any, res: any, next) => {});
