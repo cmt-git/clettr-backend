@@ -12,14 +12,34 @@ import { nftCreateHandler } from "./scripts/nftCreateHandler";
 import { nftUpdateHandler } from "./scripts/nftUpdateHandler";
 import { nftEnforcement } from "./scripts/nftEnforcement";
 import { nftForgeHandler } from "./scripts/nftForgeHandler";
+import { Letters } from "../hashes/hashesRouter";
 
 const nftsRouter = Router();
 nftsRouter.use(express.json());
 export default nftsRouter;
 
+export const nft_colors = [
+  "pink",
+  "purple",
+  "blue",
+  "teal",
+  "lime",
+  "green",
+  "yellow",
+  "orange",
+  "red",
+];
+
+export const nft_patterns = [
+  "striped",
+  "spotted",
+  "zigzag",
+  "checkered",
+  "cross",
+  "sharp",
+];
 //? used in minting passive nfts
 export const randomRequirement = () => {
-  const Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const arr_req: any = [];
   let requirement = "";
   const rand = Math.floor(Math.random() * 5) + 1;
@@ -30,21 +50,9 @@ export const randomRequirement = () => {
       rand == 1
         ? Letters[Math.floor(Math.random() * Letters.length)]
         : rand == 2
-        ? [
-            "pink",
-            "purple",
-            "blue",
-            "teal",
-            "lime",
-            "green",
-            "yellow",
-            "orange",
-            "red",
-          ][Math.floor(Math.random() * 9)]
+        ? nft_colors[Math.floor(Math.random() * nft_colors.length)]
         : rand == 3
-        ? ["striped", "spotted", "zigzag", "checkered", "cross", "sharp"][
-            Math.floor(Math.random() * 6)
-          ]
+        ? nft_patterns[Math.floor(Math.random() * nft_patterns.length)]
         : (Math.floor(Math.random() * 5) + 1).toString();
 
     if (arr_req.includes(selected) == false) {
@@ -80,6 +88,10 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
     };
 
     if (type == "active") {
+      const nft_color = nft_colors[Math.floor(Math.random() * 9)];
+      const nft_pattern = nft_patterns[Math.floor(Math.random() * 6)];
+      const nft_letters = Letters[Math.floor(Math.random() * Letters.length)];
+      const nft_traits = `${nft_letters}-${nft_color}-${nft_pattern}`;
       const nft_entity = await nftEntity
         .create({
           current_owner: req.user,
@@ -87,23 +99,10 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
           nft_token_id: token_id,
           nft_token_uri: token_uri,
           nft_type: type,
-          nft_traits: `${Letters[Math.floor(Math.random() * Letters.length)]}-${
-            [
-              "pink",
-              "purple",
-              "blue",
-              "teal",
-              "lime",
-              "green",
-              "yellow",
-              "orange",
-              "red",
-            ][Math.floor(Math.random() * 9)]
-          }-${
-            ["striped", "spotted", "zigzag", "checkered", "cross", "sharp"][
-              Math.floor(Math.random() * 6)
-            ]
-          }`,
+          nft_traits: nft_traits,
+          nft_letter: nft_letters,
+          nft_color: nft_color,
+          nft_pattern: nft_pattern,
           nft_hash: getHash(2),
           nft_stars: 1,
         })
@@ -124,6 +123,19 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
     }
 
     if (type == "passive") {
+      const requirement = randomRequirement();
+      const requirement_array = requirement.split("-");
+      const nft_color = [
+        "pink",
+        "purple",
+        "blue",
+        "teal",
+        "lime",
+        "green",
+        "yellow",
+        "orange",
+        "red",
+      ][Math.floor(Math.random() * 9)];
       const nft_entity = await nftEntity
         .create({
           current_owner: req.user,
@@ -131,20 +143,17 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
           nft_token_id: token_id,
           nft_token_uri: token_uri,
           nft_type: type,
-          nft_traits: [
-            "pink",
-            "purple",
-            "blue",
-            "teal",
-            "lime",
-            "green",
-            "yellow",
-            "orange",
-            "red",
-          ][Math.floor(Math.random() * 9)],
+          nft_traits: nft_color,
+          nft_color: nft_color,
           nft_hash: getHash(10),
           nft_stars: 1,
-          nft_requirement: randomRequirement(),
+          nft_requirement: requirement,
+          nft_requirement_1: requirement_array[0] || null,
+          nft_requirement_2: requirement_array[1] || null,
+          nft_requirement_3: requirement_array[2] || null,
+          nft_requirement_4: requirement_array[3] || null,
+          nft_requirement_5: requirement_array[4] || null,
+          nft_requirement_length: requirement.length,
         })
         .save();
 
@@ -300,6 +309,10 @@ nftsRouter.post("/create", async (req: any, res: any, next) => {
     };
 
     if (type == "active") {
+      const nft_color = nft_colors[Math.floor(Math.random() * 9)];
+      const nft_pattern = nft_patterns[Math.floor(Math.random() * 6)];
+      const nft_letters = Letters[Math.floor(Math.random() * Letters.length)];
+      const nft_traits = `${nft_letters}-${nft_color}-${nft_pattern}`;
       const nft_entity = await nftEntity
         .create({
           current_owner: req.user,
@@ -307,23 +320,10 @@ nftsRouter.post("/create", async (req: any, res: any, next) => {
           nft_token_id: token_id,
           nft_token_uri: token_uri,
           nft_type: type,
-          nft_traits: `${Letters[Math.floor(Math.random() * Letters.length)]}-${
-            [
-              "pink",
-              "purple",
-              "blue",
-              "teal",
-              "lime",
-              "green",
-              "yellow",
-              "orange",
-              "red",
-            ][Math.floor(Math.random() * 9)]
-          }-${
-            ["striped", "spotted", "zigzag", "checkered", "cross", "sharp"][
-              Math.floor(Math.random() * 6)
-            ]
-          }`,
+          nft_traits: nft_traits,
+          nft_letter: nft_letters,
+          nft_color: nft_color,
+          nft_pattern: nft_pattern,
           nft_hash: getHash(2),
           nft_stars: 1,
         })
@@ -344,6 +344,19 @@ nftsRouter.post("/create", async (req: any, res: any, next) => {
     }
 
     if (type == "passive") {
+      const requirement = randomRequirement();
+      const requirement_array = requirement.split("-");
+      const nft_color = [
+        "pink",
+        "purple",
+        "blue",
+        "teal",
+        "lime",
+        "green",
+        "yellow",
+        "orange",
+        "red",
+      ][Math.floor(Math.random() * 9)];
       const nft_entity = await nftEntity
         .create({
           current_owner: req.user,
@@ -351,20 +364,17 @@ nftsRouter.post("/create", async (req: any, res: any, next) => {
           nft_token_id: token_id,
           nft_token_uri: token_uri,
           nft_type: type,
-          nft_traits: [
-            "pink",
-            "purple",
-            "blue",
-            "teal",
-            "lime",
-            "green",
-            "yellow",
-            "orange",
-            "red",
-          ][Math.floor(Math.random() * 9)],
+          nft_traits: nft_color,
+          nft_color: nft_color,
           nft_hash: getHash(10),
           nft_stars: 1,
-          nft_requirement: randomRequirement(),
+          nft_requirement: requirement,
+          nft_requirement_1: requirement_array[0] || null,
+          nft_requirement_2: requirement_array[1] || null,
+          nft_requirement_3: requirement_array[2] || null,
+          nft_requirement_4: requirement_array[3] || null,
+          nft_requirement_5: requirement_array[4] || null,
+          nft_requirement_length: requirement.length,
         })
         .save();
 

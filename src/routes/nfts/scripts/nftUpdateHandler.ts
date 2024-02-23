@@ -2,6 +2,8 @@ import { getConnection } from "typeorm";
 import { userEntity } from "../../../entity/user/userEntity";
 import { nftEntity } from "../../../entity/inventory/nftEntity";
 import { adminLogsEntity } from "../../../entity/user/adminLogsEntity";
+import { nft_colors, nft_patterns } from "../nftsRouter";
+import { LetterArray } from "../../hashes/hashesRouter";
 
 export async function nftUpdateHandler(req: any, res: any, next) {
   const {
@@ -23,9 +25,29 @@ export async function nftUpdateHandler(req: any, res: any, next) {
       })
       .getOne();
 
-    console.log(user, nft_owner_username);
     if (user) {
       try {
+        const nft_req_array = nft_req.split("-");
+        const nft_traits_split = nft_traits.split("-");
+
+        let nft_color = "";
+        let nft_pattern = "";
+        let nft_letter = "";
+
+        for (const trait of nft_traits_split) {
+          if (nft_colors.includes(trait)) {
+            nft_color = trait;
+          }
+
+          if (nft_patterns.includes(trait)) {
+            nft_pattern = trait;
+          }
+
+          if (LetterArray.includes(trait)) {
+            nft_letter = trait;
+          }
+        }
+
         let nft = await getConnection()
           .getRepository(nftEntity)
           .createQueryBuilder("nft_entity")
@@ -33,11 +55,20 @@ export async function nftUpdateHandler(req: any, res: any, next) {
             current_owner: user,
             original_owner: user,
             nft_token_uri: nft_hash,
-            nft_type,
-            nft_traits,
+            nft_type: nft_type,
+            nft_traits: nft_traits,
+            nft_color: nft_color,
+            nft_letter: nft_letter,
+            nft_pattern: nft_pattern,
             nft_hash: nft_hash.toUpperCase(),
-            nft_stars,
+            nft_stars: nft_stars,
             nft_requirement: nft_req,
+            nft_requirement_1: nft_req_array[0] || null,
+            nft_requirement_2: nft_req_array[1] || null,
+            nft_requirement_3: nft_req_array[2] || null,
+            nft_requirement_4: nft_req_array[3] || null,
+            nft_requirement_5: nft_req_array[4] || null,
+            nft_requirement_length: nft_req.split("-").length,
           })
           .where({
             nft_token_id: nft_token_id,

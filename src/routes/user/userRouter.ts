@@ -328,7 +328,21 @@ userRouter.post("/password/modify", async (req: any, res: any, next) => {
   return await passwordChangeHandler(req, res);
 });
 
-userRouter.post("/logout", async (req: any, res: any, next) => {});
+userRouter.post("/logout", async (req: any, res: any, next) => {
+  if (req.user != undefined) {
+    req.session.destroy();
+
+    return res.status(200).send({
+      message: "Logged Out.",
+      success: true,
+    });
+  } else {
+    return res.status(403).send({
+      message: "Internal Error.",
+      success: false,
+    });
+  }
+});
 
 userRouter.post("/register", async (req: any, res: any) => {
   let {
@@ -500,66 +514,88 @@ userRouter.post("/validate", async (req: any, res: any) => {
 
 userRouter.post("/updateset", async (req: any, res: any) => {
   if (req.user != null && req.isAuthenticated()) {
-    let { set_ids } = req.body;
-    let error: boolean = false;
-    // for(let i = 0; i < 5; i++){
-    //     if (set_ids[i]){
-    //         const query = await getConnection()
-    //         .getRepository(nftEntity)
-    //         .createQueryBuilder("nft_entity")
-    //         .leftJoin("nft_entity.current_owner", "current_owner")
-    //         .where("current_owner.id = :user_id and nft_entity.id = :nft_id", {value: {user_id: req.user.id, nft_id: set_ids[i]}})
-    //         .getOne();
+    let { set_ids, reset } = req.body;
 
-    //         if(query == null) {
-    //             error = true
-    //         }
-    //     }
-    //     else {
-    //         error = true;
-    //     }
-    // }
-
-    if (error) {
-      return res.status(403).send({
-        message: "Internal Error.",
-        success: false,
-      });
-    } else {
-      const current_nft_entity_1 = await nftEntity.findOne({
-        where: { id: set_ids[0] },
-      });
-      const current_nft_entity_2 = await nftEntity.findOne({
-        where: { id: set_ids[1] },
-      });
-      const current_nft_entity_3 = await nftEntity.findOne({
-        where: { id: set_ids[2] },
-      });
-      const current_nft_entity_4 = await nftEntity.findOne({
-        where: { id: set_ids[3] },
-      });
-      const current_nft_entity_5 = await nftEntity.findOne({
-        where: { id: set_ids[4] },
-      });
-
+    if (reset === true) {
       await getConnection()
         .getRepository(userSetEntity)
         .createQueryBuilder("user_set_entity")
         .update(userSetEntity)
         .set({
-          set_1: current_nft_entity_1,
-          set_2: current_nft_entity_2,
-          set_3: current_nft_entity_3,
-          set_4: current_nft_entity_4,
-          set_5: current_nft_entity_5,
+          set_1: null,
+          set_2: null,
+          set_3: null,
+          set_4: null,
+          set_5: null,
         })
         .where("user_set_entity.user_id = :value", { value: req.user.id })
         .execute();
 
       return res.status(200).send({
-        message: "Set has been updated.",
+        message: "Set has been reset.",
         success: true,
       });
+    } else {
+      let error: boolean = false;
+      // for(let i = 0; i < 5; i++){
+      //     if (set_ids[i]){
+      //         const query = await getConnection()
+      //         .getRepository(nftEntity)
+      //         .createQueryBuilder("nft_entity")
+      //         .leftJoin("nft_entity.current_owner", "current_owner")
+      //         .where("current_owner.id = :user_id and nft_entity.id = :nft_id", {value: {user_id: req.user.id, nft_id: set_ids[i]}})
+      //         .getOne();
+
+      //         if(query == null) {
+      //             error = true
+      //         }
+      //     }
+      //     else {
+      //         error = true;
+      //     }
+      // }
+
+      if (error) {
+        return res.status(403).send({
+          message: "Internal Error.",
+          success: false,
+        });
+      } else {
+        const current_nft_entity_1 = await nftEntity.findOne({
+          where: { id: set_ids[0] },
+        });
+        const current_nft_entity_2 = await nftEntity.findOne({
+          where: { id: set_ids[1] },
+        });
+        const current_nft_entity_3 = await nftEntity.findOne({
+          where: { id: set_ids[2] },
+        });
+        const current_nft_entity_4 = await nftEntity.findOne({
+          where: { id: set_ids[3] },
+        });
+        const current_nft_entity_5 = await nftEntity.findOne({
+          where: { id: set_ids[4] },
+        });
+
+        await getConnection()
+          .getRepository(userSetEntity)
+          .createQueryBuilder("user_set_entity")
+          .update(userSetEntity)
+          .set({
+            set_1: current_nft_entity_1,
+            set_2: current_nft_entity_2,
+            set_3: current_nft_entity_3,
+            set_4: current_nft_entity_4,
+            set_5: current_nft_entity_5,
+          })
+          .where("user_set_entity.user_id = :value", { value: req.user.id })
+          .execute();
+
+        return res.status(200).send({
+          message: "Set has been updated.",
+          success: true,
+        });
+      }
     }
   } else {
     return res.status(403).send({
