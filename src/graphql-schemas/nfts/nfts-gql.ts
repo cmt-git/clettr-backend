@@ -41,6 +41,8 @@ const typeDefs = gql`
     total_boost: String!
     final_difficulty: Int!
     reward: String!
+    community_reward: String
+    sharer_username: String
   }
 
   type userPlayHistory {
@@ -51,12 +53,29 @@ const typeDefs = gql`
     owned_nfts(
       username: String
       filters: String
+      nft_type: String
+      nft_star: String
+      nft_requirements: String
+      nft_requirement_1: String
+      nft_requirement_2: String
+      nft_requirement_3: String
+      nft_requirement_4: String
+      nft_requirement_5: String
+      nft_letter: String
+      nft_color: String
+      nft_pattern: String
+      nft_hash: String
+      nft_market_currency: String
+      nft_market_operator: String
+      nft_market_cost: String
+      nft_market_only: Boolean
+      set_traits: [String]
       page: Int
       not_user: Boolean
     ): InventoryNFTs
     user_set: userSet
     market_nfts(page: Int): MarketNFTs
-    user_play_history_query(page: Int): userPlayHistory
+    user_play_history_query(page: Int, filter: String): userPlayHistory
     nft(id: Int): NFTs
   }
 `;

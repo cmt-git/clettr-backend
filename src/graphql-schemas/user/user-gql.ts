@@ -83,6 +83,7 @@ const typeDefs = gql`
       page: Int
       global: Boolean
       username: String
+      filter: String
     ): [user_transaction]
     user_transactions_total: Int!
     admin_logs_entity(page: Int): [AdminLogs]

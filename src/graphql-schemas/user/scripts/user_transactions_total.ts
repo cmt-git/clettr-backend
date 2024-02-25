@@ -6,8 +6,10 @@ export async function userTransactionTotal(parent, args, context) {
     const query = await getConnection()
       .getRepository(userTransactionEntity)
       .createQueryBuilder("user_transaction_entity")
-      .where("user_transaction_entity.user_id = :value", {
-        value: context.user.id,
+      .where((qb) => {
+        qb.andWhere("user_transaction_entity.user_id = :value", {
+          value: context.user.id,
+        });
       })
       .getCount();
 

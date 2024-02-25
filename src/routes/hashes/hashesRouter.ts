@@ -14,9 +14,10 @@ hashesRouter.post("/test/generate", async (req: any, res: any, next) => {
   });
 });
 
-export const generateWeeklyHashes = async () => {
-  const Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+export const Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+export const LetterArray = Letters.split("");
 
+export const generateWeeklyHashes = async () => {
   await getConnection()
     .createQueryBuilder()
     .delete()

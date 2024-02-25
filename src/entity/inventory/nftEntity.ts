@@ -62,8 +62,25 @@ export class nftEntity extends BaseEntity {
   @Column()
   nft_type: String; //! WARNING THIS VARIABLE CAN ONLY HAVE "active" or "passive"
 
-  @Column()
+  @Column({
+    default: null,
+  })
   nft_traits: String; //? Example trait -> letter trait : A-blue-striped, node trait: green
+
+  @Column({
+    default: null,
+  })
+  nft_letter: String; //? Example trait -> letter trait : A-blue-striped, node trait: green
+
+  @Column({
+    default: null,
+  })
+  nft_color: String; //? Example trait -> letter trait : A-blue-striped, node trait: green
+
+  @Column({
+    default: null,
+  })
+  nft_pattern: String; //? Example trait -> letter trait : A-blue-striped, node trait: green
 
   @Column()
   nft_hash: String;
@@ -75,6 +92,36 @@ export class nftEntity extends BaseEntity {
     default: null,
   })
   nft_requirement: String; //? Example requirement -> letter req : null, node trait: striped-5-A-pink-1
+
+  @Column({
+    default: null,
+  })
+  nft_requirement_1: String; //? Example requirement -> letter req : null, node trait: striped-5-A-pink-1
+
+  @Column({
+    default: null,
+  })
+  nft_requirement_2: String; //? Example requirement -> letter req : null, node trait: striped-5-A-pink-1
+
+  @Column({
+    default: null,
+  })
+  nft_requirement_3: String; //? Example requirement -> letter req : null, node trait: striped-5-A-pink-1
+
+  @Column({
+    default: null,
+  })
+  nft_requirement_4: String; //? Example requirement -> letter req : null, node trait: striped-5-A-pink-1
+
+  @Column({
+    default: null,
+  })
+  nft_requirement_5: String; //? Example requirement -> letter req : null, node trait: striped-5-A-pink-1
+
+  @Column({
+    default: 0,
+  })
+  nft_requirement_length: Number; //? Example requirement -> letter req : null, node trait: striped-5-A-pink-1
 
   @Column({
     default: 0,
@@ -90,4 +137,14 @@ export class nftEntity extends BaseEntity {
     default: null,
   })
   market_info: String; //? this variable is for storing market info for example -> USDC-49.99
+
+  @Column({
+    default: null,
+  })
+  market_currency: String; //? this variable is for storing market info for example -> USDC-49.99
+
+  @Column({
+    default: null,
+  })
+  market_cost: Number; //? this variable is for storing market info for example -> USDC-49.99
 }
