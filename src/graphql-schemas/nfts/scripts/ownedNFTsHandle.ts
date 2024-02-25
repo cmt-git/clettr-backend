@@ -1,4 +1,4 @@
-import { getConnection } from "typeorm";
+import { Brackets, getConnection } from "typeorm";
 import { nftEntity } from "../../../entity/inventory/nftEntity";
 
 export async function ownedNFTsHandle(parent, args, context) {
@@ -10,6 +10,7 @@ export async function ownedNFTsHandle(parent, args, context) {
   const nft_requirements_3 = args.nft_requirement_3;
   const nft_requirements_4 = args.nft_requirement_4;
   const nft_requirements_5 = args.nft_requirement_5;
+  const nft_letter = args.nft_letter;
   const nft_pattern = args.nft_pattern;
   const nft_color = args.nft_color;
   const nft_hash = args.nft_hash;
@@ -24,7 +25,7 @@ export async function ownedNFTsHandle(parent, args, context) {
 
     let user_type =
       args.not_user !== true
-        ? "(current_owner = :value or current_owner.username = :value)"
+        ? "(current_owner = :value)"
         : //"(current_owner.username = :username and current_owner is not :value)";
           "(current_owner != :value)";
 
@@ -40,13 +41,10 @@ export async function ownedNFTsHandle(parent, args, context) {
       .leftJoinAndSelect("nft_entity.current_owner", "current_owner")
       .leftJoinAndSelect("nft_entity.original_owner", "original_owner")
       .where((qb) => {
-        qb.andWhere(
-          `${user_type} and (nft_entity.status != 'burned' or nft_entity.status is null) `,
-          {
-            value: context.user.id,
-            username: args.username,
-          }
-        );
+        qb.andWhere(`${user_type}`, {
+          value: context.user.id,
+          username: args.username,
+        });
 
         if (args.filters != null) {
           qb.andWhere(`nft_entity.nft_type = :filter`, {
@@ -58,12 +56,30 @@ export async function ownedNFTsHandle(parent, args, context) {
           qb.andWhere(filter_stars);
         }
 
+        if (nft_type == "Search All") {
+          if (args.nft_market_only) {
+            qb.andWhere(`nft_entity.status = 'market_sell'`);
+          } else {
+            qb.andWhere(
+              "(nft_entity.status is NULL OR (nft_entity.status = 'market_sell' AND nft_entity.current_owner = :currentOwnerId))",
+              { currentOwnerId: context.user.id }
+            );
+          }
+        }
+
+        if (nft_type == "Search All No Market") {
+          qb.andWhere(`nft_entity.status is null`);
+        }
         if (nft_type == "Search Passive NFTs") {
-          qb.andWhere(`nft_entity.nft_type = 'passive'`);
+          qb.andWhere(
+            `nft_entity.nft_type = 'passive' and nft_entity.status is null`
+          );
         }
 
         if (nft_type == "Search Active NFTs") {
-          qb.andWhere(`nft_entity.nft_type = 'active'`);
+          qb.andWhere(
+            `nft_entity.nft_type = 'active' and nft_entity.status is null`
+          );
         }
 
         if (nft_type == "Listed Passive NFTs") {
@@ -78,8 +94,12 @@ export async function ownedNFTsHandle(parent, args, context) {
           );
         }
 
-        if (nft_star != "Any Star" && /^-?[1-5]$/.test(nft_star)) {
-          qb.andWhere(`nft_entity.nft_stars = ${nft_star}`);
+        if (
+          nft_star &&
+          nft_star != "Any Star" &&
+          /^-?[1-5]$/.test(nft_star?.split(" ")[0])
+        ) {
+          qb.andWhere(`nft_entity.nft_stars = ${nft_star?.split(" ")[0]}`);
         }
 
         if (nft_requirements != "Any Requirement") {
@@ -90,7 +110,7 @@ export async function ownedNFTsHandle(parent, args, context) {
 
             if (nft_requirements_1 != "Any Requirement") {
               qb.andWhere(
-                `nft_entity.nft_requirement_1 = ${nft_requirements_1}`
+                `nft_entity.nft_requirement_1 = '${nft_requirements_1}'`
               );
             }
           }
@@ -100,7 +120,7 @@ export async function ownedNFTsHandle(parent, args, context) {
 
             if (nft_requirements_2 != "Any Requirement") {
               qb.andWhere(
-                `nft_entity.nft_requirement_2 = ${nft_requirements_2}`
+                `nft_entity.nft_requirement_2 = '${nft_requirements_2}'`
               );
             }
           }
@@ -110,7 +130,7 @@ export async function ownedNFTsHandle(parent, args, context) {
 
             if (nft_requirements_3 != "Any Requirement") {
               qb.andWhere(
-                `nft_entity.nft_requirement_3 = ${nft_requirements_3}`
+                `nft_entity.nft_requirement_3 = '${nft_requirements_3}'`
               );
             }
           }
@@ -120,7 +140,7 @@ export async function ownedNFTsHandle(parent, args, context) {
 
             if (nft_requirements_4 != "Any Requirement") {
               qb.andWhere(
-                `nft_entity.nft_requirement_4 = ${nft_requirements_4}`
+                `nft_entity.nft_requirement_4 = '${nft_requirements_4}'`
               );
             }
           }
@@ -130,27 +150,91 @@ export async function ownedNFTsHandle(parent, args, context) {
 
             if (nft_requirements_5 != "Any Requirement") {
               qb.andWhere(
-                `nft_entity.nft_requirement_5 = ${nft_requirements_5}`
+                `nft_entity.nft_requirement_5 = '${nft_requirements_5}'`
               );
             }
           }
         }
 
         if (set_traits != null) {
-          qb.andWhere("nft_entity.nft_requirement_1 IN (:...set_traits)", {
-            set_traits,
-          })
-            .orWhere("nft_entity.nft_requirement_2 IN (:...set_traits)")
-            .orWhere("nft_entity.nft_requirement_3 IN (:...set_traits)")
-            .orWhere("nft_entity.nft_requirement_4 IN (:...set_traits)")
-            .orWhere("nft_entity.nft_requirement_5 IN (:...set_traits)");
+          qb.andWhere(
+            "(nft_entity.nft_requirement_1 IN (:...set_traits) OR nft_entity.nft_requirement_2 IN (:...set_traits) OR nft_entity.nft_requirement_3 IN (:...set_traits) OR nft_entity.nft_requirement_4 IN (:...set_traits) OR nft_entity.nft_requirement_5 IN (:...set_traits)) and nft_entity.status is null",
+            { set_traits }
+          );
+        }
+
+        if (nft_pattern && nft_pattern != "Any Pattern") {
+          qb.andWhere(
+            `nft_entity.nft_pattern = '${nft_pattern.toLowerCase()}'`
+          );
+        }
+
+        if (nft_color && nft_color != "Any Color") {
+          qb.andWhere(`nft_entity.nft_color = '${nft_color.toLowerCase()}'`);
+        }
+
+        if (nft_letter && nft_letter != "Any Letter") {
+          qb.andWhere(`nft_entity.nft_letter = '${nft_letter}'`);
+        }
+
+        if (nft_hash && (nft_hash.length == 2 || nft_hash.length == 10)) {
+          qb.andWhere(`nft_entity.nft_hash = '${nft_hash}'`);
+        }
+
+        if (nft_market_currency && nft_market_currency != "Any Currency") {
+          qb.andWhere(`nft_entity.market_currency = '${nft_market_currency}'`);
+        }
+
+        if (nft_market_cost) {
+          if (!nft_market_operator || nft_market_operator != "No Operator") {
+            qb.andWhere(`nft_entity.market_cost = ${nft_market_cost}`);
+          } else {
+            if (nft_market_operator == "Equals (=)") {
+              qb.andWhere(`nft_entity.market_cost = ${nft_market_cost}`);
+            }
+
+            if (nft_market_operator == "Less Than (<)") {
+              qb.andWhere(`nft_entity.market_cost < ${nft_market_cost}`);
+            }
+
+            if (nft_market_operator == "Less Than Or Equals (<=)") {
+              qb.andWhere(`nft_entity.market_cost <= ${nft_market_cost}`);
+            }
+
+            if (nft_market_operator == "Greater Than (>)") {
+              qb.andWhere(`nft_entity.market_cost > ${nft_market_cost}`);
+            }
+
+            if (nft_market_operator == "Greater Than Or Equals (>=)") {
+              qb.andWhere(`nft_entity.market_cost >= ${nft_market_cost}`);
+            }
+          }
         }
       })
       .offset(!args.page ? 0 : (args.page - 1) * 10)
       .limit(30)
-      .orderBy("nft_entity.id", "DESC")
-      .getMany();
+      .orderBy("nft_entity.id", "DESC");
 
+    if (args.set_traits) {
+      query
+        .addOrderBy(
+          "SUM(" +
+            "CASE WHEN nft_entity.nft_requirement_1 IN (:...set_traits) THEN 1 ELSE 0 END + " +
+            "CASE WHEN nft_entity.nft_requirement_2 IN (:...set_traits) THEN 1 ELSE 0 END + " +
+            "CASE WHEN nft_entity.nft_requirement_3 IN (:...set_traits) THEN 1 ELSE 0 END + " +
+            "CASE WHEN nft_entity.nft_requirement_4 IN (:...set_traits) THEN 1 ELSE 0 END + " +
+            "CASE WHEN nft_entity.nft_requirement_5 IN (:...set_traits) THEN 1 ELSE 0 END" +
+            ")",
+          "DESC"
+        )
+        .addOrderBy("nft_entity.nft_requirement_length", "ASC")
+        .addGroupBy("nft_entity.id")
+        .addGroupBy("current_owner.id") // Include current_owner.id in GROUP BY
+        .addGroupBy("original_owner.id") // Include current_owner.id in GROUP BY
+        .setParameters({ set_traits: args.set_traits });
+    }
+
+    query = await query.getMany();
     // if (args.filters == null) {
     //   query = await getConnection()
     //     .getRepository(nftEntity)

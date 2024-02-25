@@ -137,4 +137,14 @@ export class nftEntity extends BaseEntity {
     default: null,
   })
   market_info: String; //? this variable is for storing market info for example -> USDC-49.99
+
+  @Column({
+    default: null,
+  })
+  market_currency: String; //? this variable is for storing market info for example -> USDC-49.99
+
+  @Column({
+    default: null,
+  })
+  market_cost: Number; //? this variable is for storing market info for example -> USDC-49.99
 }

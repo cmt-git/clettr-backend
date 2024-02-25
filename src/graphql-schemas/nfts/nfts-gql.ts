@@ -41,6 +41,8 @@ const typeDefs = gql`
     total_boost: String!
     final_difficulty: Int!
     reward: String!
+    community_reward: String
+    sharer_username: String
   }
 
   type userPlayHistory {
@@ -66,6 +68,7 @@ const typeDefs = gql`
       nft_market_currency: String
       nft_market_operator: String
       nft_market_cost: String
+      nft_market_only: Boolean
       set_traits: [String]
       page: Int
       not_user: Boolean

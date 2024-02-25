@@ -293,6 +293,71 @@ const calculateRewards = async (json: any) => {
   const reward: number =
     (ettr_reward + reward_boost + (ettr_reward + reward_boost)) * boost;
 
+  let total_reward = 0;
+  let community_reward = 0;
+
+  if (node.current_owner.id == json.user.id) {
+    total_reward = reward;
+    await getConnection()
+      .getRepository(userInfoEntity)
+      .createQueryBuilder("user_info_entity")
+      .leftJoin("user_info_entity.user_id", "user_id")
+      .update(userInfoEntity)
+      .set({ unclaimed_ettr: () => `unclaimed_ettr + ${total_reward}` })
+      .where("user_id.id = :value", { value: json.user.id })
+      .execute();
+
+    total_reward = total_reward;
+
+    await userTransactionHandle({
+      user: json.user.id,
+      transaction_type: transactionType.PLAY,
+      description: `Play Reward: ${total_reward}`,
+      transaction_amount: Number(total_reward),
+      transaction_currency: transactionCurrency.ETTR,
+    });
+  } else {
+    total_reward = reward * 0.95;
+    community_reward = reward * 0.05;
+
+    await getConnection()
+      .getRepository(userInfoEntity)
+      .createQueryBuilder("user_info_entity")
+      .leftJoin("user_info_entity.user_id", "user_id")
+      .update(userInfoEntity)
+      .set({
+        unclaimed_ettr: () => `unclaimed_ettr + ${total_reward}`,
+        node_used: json.user_info.node_used + node.id + "-",
+      })
+      .where("user_id.id = :value", { value: json.user.id })
+      .execute();
+
+    await userTransactionHandle({
+      user: json.user.id,
+      transaction_type: transactionType.PLAY,
+      description: `Play Reward: ${total_reward}`,
+      transaction_amount: Number(total_reward),
+      transaction_currency: transactionCurrency.ETTR,
+    });
+
+    await getConnection()
+      .getRepository(userInfoEntity)
+      .createQueryBuilder("user_info_entity")
+      .leftJoin("user_info_entity.user_id", "user_id")
+      .update(userInfoEntity)
+      .set({ unclaimed_ettr: () => `unclaimed_ettr + ${community_reward}` })
+      .where("user_id.id = :value", { value: node.current_owner.id })
+      .execute();
+
+    await userTransactionHandle({
+      user: node.current_owner.id,
+      transaction_type: transactionType.COMMUNITY,
+      description: `Play Reward: ${community_reward}`,
+      transaction_amount: Number(community_reward),
+      transaction_currency: transactionCurrency.ETTR,
+    });
+  }
+
   await userPlayHistory
     .create({
       user_id: json.user,
@@ -312,70 +377,17 @@ const calculateRewards = async (json: any) => {
       rounds: rounds,
       total_boost: initial_boost_value,
       final_difficulty: threshold,
-      reward: reward,
+      reward: total_reward,
+      sharer_username: node.current_owner.username,
+      community_reward: community_reward.toString(),
     })
     .save();
 
-  if (node.current_owner.id == json.user.id) {
-    const reward_amount = reward * 1;
-    await getConnection()
-      .getRepository(userInfoEntity)
-      .createQueryBuilder("user_info_entity")
-      .leftJoin("user_info_entity.user_id", "user_id")
-      .update(userInfoEntity)
-      .set({ unclaimed_ettr: () => `unclaimed_ettr + ${reward_amount}` })
-      .where("user_id.id = :value", { value: json.user.id })
-      .execute();
-
-    await userTransactionHandle({
-      user: json.user.id,
-      transaction_type: transactionType.PLAY,
-      description: `Play Reward: ${reward_amount}`,
-      transaction_amount: Number(reward_amount),
-      transaction_currency: transactionCurrency.ETTR,
-    });
-  } else {
-    await getConnection()
-      .getRepository(userInfoEntity)
-      .createQueryBuilder("user_info_entity")
-      .leftJoin("user_info_entity.user_id", "user_id")
-      .update(userInfoEntity)
-      .set({
-        unclaimed_ettr: () => `unclaimed_ettr + ${Number(reward * 0.95)}`,
-      })
-      .set({ node_used: json.user_info.node_used + node.id + "-" })
-      .where("user_id.id = :value", { value: json.user.id })
-      .execute();
-
-    await userTransactionHandle({
-      user: json.user.id,
-      transaction_type: transactionType.PLAY,
-      description: `Play Reward: ${reward * 0.95}`,
-      transaction_amount: Number(reward * 0.95),
-      transaction_currency: transactionCurrency.ETTR,
-    });
-
-    await getConnection()
-      .getRepository(userInfoEntity)
-      .createQueryBuilder("user_info_entity")
-      .leftJoin("user_info_entity.user_id", "user_id")
-      .update(userInfoEntity)
-      .set({ unclaimed_ettr: () => `unclaimed_ettr + ${reward * 0.05}` })
-      .where("user_id.id = :value", { value: node.current_owner.id })
-      .execute();
-
-    await userTransactionHandle({
-      user: node.current_owner.id,
-      transaction_type: transactionType.COMMUNITY,
-      description: `Play Reward: ${reward * 0.05}`,
-      transaction_amount: Number(reward * 0.05),
-      transaction_currency: transactionCurrency.ETTR,
-    });
-  }
-
   return {
     words_cracked: cracked_words,
-    total_reward: reward,
+    total_reward: total_reward,
+    community_reward: community_reward,
+    sharer_username: node.current_owner.username,
     rounds: rounds,
     final_difficulty: threshold,
   };

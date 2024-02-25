@@ -59,6 +59,8 @@ export async function userPlayHistoryQueryHandler(parent, args, context) {
         total_boost: query[i].total_boost,
         final_difficulty: query[i].final_difficulty,
         reward: query[i].reward,
+        sharer_username: query[i].sharer_username,
+        community_reward: query[i].community_reward,
       });
     }
 

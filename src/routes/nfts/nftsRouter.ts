@@ -153,7 +153,7 @@ nftsRouter.post("/mint", async (req: any, res: any, next) => {
           nft_requirement_3: requirement_array[2] || null,
           nft_requirement_4: requirement_array[3] || null,
           nft_requirement_5: requirement_array[4] || null,
-          nft_requirement_length: requirement.length,
+          nft_requirement_length: requirement_array.length,
         })
         .save();
 
@@ -187,7 +187,12 @@ nftsRouter.post("/market_sell", async (req: any, res: any, next) => {
   ) {
     const nft_entity = await nftEntity.update(
       { current_owner: req.user.id, id: nft_id },
-      { market_info: `${currency}-${Math.round(price)}`, status: "market_sell" }
+      {
+        market_info: `${currency}-${Math.round(price)}`,
+        status: "market_sell",
+        market_cost: Math.round(price),
+        market_currency: currency,
+      }
     );
 
     return res.status(200).send({
@@ -374,7 +379,7 @@ nftsRouter.post("/create", async (req: any, res: any, next) => {
           nft_requirement_3: requirement_array[2] || null,
           nft_requirement_4: requirement_array[3] || null,
           nft_requirement_5: requirement_array[4] || null,
-          nft_requirement_length: requirement.length,
+          nft_requirement_length: requirement_array.length,
         })
         .save();
 
