@@ -23,12 +23,6 @@ export async function ownedNFTsHandle(parent, args, context) {
     const nft_arr: any = [];
     let query: any = null;
 
-    let user_type =
-      args.not_user !== true
-        ? "(current_owner = :value)"
-        : //"(current_owner.username = :username and current_owner is not :value)";
-          "(current_owner != :value)";
-
     const filter_type = args.filters?.split("-")[0];
     const filter_stars =
       args.filters?.split("-").length > 1
@@ -41,10 +35,18 @@ export async function ownedNFTsHandle(parent, args, context) {
       .leftJoinAndSelect("nft_entity.current_owner", "current_owner")
       .leftJoinAndSelect("nft_entity.original_owner", "original_owner")
       .where((qb) => {
-        qb.andWhere(`${user_type}`, {
-          value: context.user.id,
-          username: args.username,
-        });
+        qb.andWhere(
+          args.not_user !== true
+            ? "current_owner = :value"
+            : "(current_owner != :value)",
+          { value: context.user.id }
+        );
+
+        if (args.username) {
+          qb.andWhere("current_owner.username = :username", {
+            username: args.username,
+          });
+        }
 
         if (args.filters != null) {
           qb.andWhere(`nft_entity.nft_type = :filter`, {
