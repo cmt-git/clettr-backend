@@ -124,13 +124,13 @@ export async function nftForgeHandler(req, res) {
             : transactionType.FORGE_ACTIVE,
         description: `Forged NFT #${nft_entity.id}`,
         transaction_amount:
-          current_star == 1
+          current_star == 2
             ? -100
-            : current_star == 2
-            ? -200
             : current_star == 3
-            ? -300
+            ? -200
             : current_star == 4
+            ? -300
+            : current_star == 5
             ? -500
             : 0,
         transaction_currency: transactionCurrency.ETTR,

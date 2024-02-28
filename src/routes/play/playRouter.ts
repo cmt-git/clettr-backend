@@ -10,10 +10,8 @@ import { weeklyHashesEntity } from "../../entity/weekly-hashes/weeklyHashesEntit
 import {
   transactionCurrency,
   transactionType,
-  userTransactionEntity,
 } from "../../entity/user/userTransaction";
 import { userTransactionHandle } from "../user/scripts/handleUserTransactions";
-import { EttrModify } from "../simulation/simulationRouter";
 
 const playRouter = Router();
 playRouter.use(express.json());
@@ -21,8 +19,8 @@ export default playRouter;
 
 //! !!!!! - SYNC THIS WITH FRONTEND @ comparedHash.tsx - !!!!! ⤵
 const getComparedHash = async (current_hash: string, type: any) => {
-  //? front end implementation
-  //const hash_set = type == "active" ? store.getState().queryState.value.misc.active_hashes :  store.getState().queryState.value.misc.passive_hashes;
+  //info: front end implementation
+  //info: const hash_set = type == "active" ? store.getState().queryState.value.misc.active_hashes :  store.getState().queryState.value.misc.passive_hashes;
   const weeklyHashSet = await weeklyHashesEntity.find({
     where: { hash_type: type },
   });
@@ -32,7 +30,7 @@ const getComparedHash = async (current_hash: string, type: any) => {
     hash_set.push(weeklyHashSet[i].hash);
   }
 
-  let compared_hash = "----------";
+  let compared_hash = "----------"; //info: empty
   let points = 0;
   for (let i = 0; i < hash_set.length; i++) {
     let current_points = 0;
@@ -40,7 +38,7 @@ const getComparedHash = async (current_hash: string, type: any) => {
 
     for (let x = 0; x < hash_set[i].length; x++) {
       if (hash_set[i][x] == current_hash[x]) {
-        current_points += 5; //? Sync node boost constant with backend
+        current_points += 5; //warning: Sync node boost constant with backend
       }
       char_arr.push(hash_set[i][x]);
     }
